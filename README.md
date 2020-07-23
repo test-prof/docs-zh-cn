@@ -4,6 +4,8 @@ This repo contains (will contain) Chinese documentation for [TestProf][].
 
 The docs will be available at the main [documentation website](https://test-prof.evilmartians.io/).
 
+[Translations guide](https://github.com/test-prof/docs/blob/master/TRANSLATIONS.md).
+
 ### Linters
 
 We try to keep our documentation both correct and _stylish_ using the following tools:
