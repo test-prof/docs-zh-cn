@@ -3,30 +3,30 @@
 
 # TestProf
 
-> Ruby tests profiling and optimization toolbox
+> Ruby 测试的分析和优化工具箱。
 
 <img align="right" height="150" width="129"
      title="TestProf logo" class="home-logo" src="./assets/images/logo.svg">
 
-TestProf is a collection of different tools to analyze your test suite performance.
+TestProf 是一个分析你的测试套件性能的不同工具集。
 
-Why does test suite performance matter? First of all, testing is a part of a developer's feedback loop (see [@searls](https://github.com/searls) [talk](https://vimeo.com/145917204)) and, secondly, it is a part of a deployment cycle.
+为什么测试套件性能如此重要？ 首先，测试是开发者反馈环的一部分（参看 [@searls](https://github.com/searls) [talk](https://vimeo.com/145917204)）。其次，它是开发周期的一部分。
 
-Simply speaking, slow tests waste your time making you less productive.
+简单来说，慢测试浪费你的时间，让你效率低下。
 
-TestProf toolbox aims to help you identify bottlenecks in your test suite. It contains:
+TestProf 工具箱旨在帮你识别测试套件的瓶颈。它包含：
 
-- Plug'n'Play integration for general Ruby profilers ([`ruby-prof`](https://github.com/ruby-prof/ruby-prof), [`stackprof`](https://github.com/tmm1/stackprof))
+- 为常规 Ruby 分析器（[`ruby-prof`](https://github.com/ruby-prof/ruby-prof), [`stackprof`](https://github.com/tmm1/stackprof)）提供了即插即用的整合。
 
-- Factories usage analyzers and profilers
+- 对 Factories 的使用采用了分析器。
 
-- ActiveSupport-backed profilers
+- ActiveSupport 所支持的分析器。
 
-- RSpec and minitest [helpers](#recipes) to write faster tests
+- 提供了 RSpec 和 minitest 的 [帮助方法](#recipes) 以编写更快的测试。
 
-- RuboCop cops
+- RuboCop 的支持。
 
-- etc.
+- 更多……
 
 📑 [Documentation](https://test-prof.evilmartians.io)
 
@@ -42,35 +42,34 @@ TestProf toolbox aims to help you identify bottlenecks in your test suite. It co
          alt="Sponsored by Evil Martians" width="236" height="54">
   </a>
 </p>
+## 使用 TestProf 的用户
 
-## Who uses TestProf
-
-- [Discourse](https://github.com/discourse/discourse) reduced [~27% of their test suite time](https://twitter.com/samsaffron/status/1125602558024699904)
-- [Gitlab](https://gitlab.com/gitlab-org/gitlab-ce) reduced [39% of their API tests time](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/14370)
+- [Discourse](https://github.com/discourse/discourse) 减少了 [他们测试套件约 27% 的耗时](https://twitter.com/samsaffron/status/1125602558024699904)
+- [Gitlab](https://gitlab.com/gitlab-org/gitlab-ce) 减少了 [他们 API 测试 39% 的耗时](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/14370)
 - [CodeTriage](https://github.com/codetriage/codetriage)
 - [Dev.to](https://github.com/thepracticaldev/dev.to)
 - [Open Project](https://github.com/opf/openproject)
-- [...and others](https://github.com/test-prof/test-prof/issues/73)
+- [其他更多……](https://github.com/test-prof/test-prof/issues/73)
 
-## Resources
+## 资源列表
 
-- [TestProf: a good doctor for slow Ruby tests](https://evilmartians.com/chronicles/testprof-a-good-doctor-for-slow-ruby-tests)
+- [TestProf: Ruby慢测试的“良医圣手”](https://xfyuan.github.io/2020/07/testprof-doctor-for-slow-ruby-tests/)
 
-- [TestProf II: Factory therapy for your Ruby tests](https://evilmartians.com/chronicles/testprof-2-factory-therapy-for-your-ruby-tests-rspec-minitest)
+- [TestProf II: Ruby测试的“工厂疗法”](https://xfyuan.github.io/2020/07/testprof-factory-therapy-for-ruby-tests/)
 
-- Paris.rb, 2018, "99 Problems of Slow Tests" talk [[video](https://www.youtube.com/watch?v=eDMZS_fkRtk), [slides](https://speakerdeck.com/palkan/paris-dot-rb-2018-99-problems-of-slow-tests)]
+- Paris.rb, 2018, “慢测试的99个问题” 演讲 [[视频](https://www.youtube.com/watch?v=eDMZS_fkRtk), [slides](https://speakerdeck.com/palkan/paris-dot-rb-2018-99-problems-of-slow-tests)]
 
-- BalkanRuby, 2018, "Take your slow tests to the doctor" talk [[video](https://www.youtube.com/watch?v=rOcrme82vC8)], [slides](https://speakerdeck.com/palkan/balkanruby-2018-take-your-slow-tests-to-the-doctor)]
+- BalkanRuby, 2018, “带你的慢测试去看‘良医’” 演讲 [[视频](https://www.youtube.com/watch?v=rOcrme82vC8)], [slides](https://speakerdeck.com/palkan/balkanruby-2018-take-your-slow-tests-to-the-doctor)]
 
-- RailsClub, Moscow, 2017, "Faster Tests" talk [[video](https://www.youtube.com/watch?v=8S7oHjEiVzs) (RU), [slides](https://speakerdeck.com/palkan/railsclub-moscow-2017-faster-tests)]
+- RailsClub, Moscow, 2017, “更快的测试” 演讲 [[视频](https://www.youtube.com/watch?v=8S7oHjEiVzs) (俄语), [slides](https://speakerdeck.com/palkan/railsclub-moscow-2017-faster-tests)]
 
-- RubyConfBy, 2017, "Run Test Run" talk [[video](https://www.youtube.com/watch?v=q52n4p0wkIs), [slides](https://speakerdeck.com/palkan/rubyconfby-minsk-2017-run-test-run)]
+- RubyConfBy, 2017, “测试跑跑跑” 演讲 [[视频](https://www.youtube.com/watch?v=q52n4p0wkIs), [slides](https://speakerdeck.com/palkan/rubyconfby-minsk-2017-run-test-run)]
 
-- [Tips to improve speed of your test suite](https://medium.com/appaloosa-store-engineering/tips-to-improve-speed-of-your-test-suite-8418b485205c) by [Benoit Tigeot](https://github.com/benoittgt)
+- [提升你测试套件速度的技巧](https://medium.com/appaloosa-store-engineering/tips-to-improve-speed-of-your-test-suite-8418b485205c) 演讲者：[Benoit Tigeot](https://github.com/benoittgt)
 
-## Installation
+## 安装
 
-Add `test-prof` gem to your application:
+把 `test-prof` gem 添加到你的应用：
 
 ```ruby
 group :test do
@@ -78,39 +77,39 @@ group :test do
 end
 ```
 
-And that's it)
+就行了！
 
-Supported Ruby versions:
+所支持的 Ruby 版本：
 
-- Ruby (MRI) >= 2.5.0 (**NOTE:** for Ruby 2.2 use TestProf < 0.7.0, Ruby 2.3 use TestProf ~> 0.7.0, Ruby 2.4 use TestProf <0.12.0)
+- Ruby (MRI) >= 2.5.0（**注意：** 对于 Ruby 2.2 请使用 TestProf < 0.7.0，Ruby 2.3 请使用 TestProf ~> 0.7.0，Ruby 2.4 请使用 TestProf <0.12.0）
 
-- JRuby >= 9.1.0.0 (**NOTE:** refinements-dependent features might require 9.2.7+)
+- JRuby >= 9.1.0.0 （**注意** refinements-dependent 特性可能需要 9.2.7+）
 
-Supported RSpec version (for RSpec features only): >= 3.5.0 (for older RSpec version use TestProf < 0.8.0).
+所支持的 RSpec 版本（仅 RSpec 特性）: >= 3.5.0（对于旧版本 RSpec 请使用 TestProf < 0.8.0）。
 
-## Profilers
+## 分析器
 
-- [RubyProf Integration](./profilers/ruby_prof.md)
+- [RubyProf 的整合](./profilers/ruby_prof.md)
 
-- [StackProf Integration](./profilers/stack_prof.md)
+- [StackProf 的整合](./profilers/stack_prof.md)
 
-- [Event Profiler](./profilers/event_prof.md) (e.g. ActiveSupport notifications)
+- [Event 分析器](./profilers/event_prof.md)（比如，ActiveSupport 的 notifications）
 
-- [Tag Profiler](./profilers/tag_prof.md)
+- [Tag 分析器](./profilers/tag_prof.md)
 
-- [Factory Doctor](./profilers/factory_doctor.md)
+- [Factory 医生](./profilers/factory_doctor.md)
 
-- [Factory Profiler](./profilers/factory_prof.md)
+- [Factory 分析器](./profilers/factory_prof.md)
 
-- [RSpecDissect Profiler](./profilers/rspec_dissect.md)
+- [RSpecDissect 分析器](./profilers/rspec_dissect.md)
 
-## Recipes
+## 配方
 
-We also want to share some small code tricks which can help you to improve your test suite performance and efficiency:
+我们也期望分享一些小的代码技巧，可以帮助你改进测试套件的性能和效率：
 
 - [`before_all` Hook](./recipes/before_all.md)
 
-- [`let_it_be` Helper](./recipes/let_it_be.md)
+- [`let_it_be` 帮助方法](./recipes/let_it_be.md)
 
 - [AnyFixture](./recipes/any_fixture.md)
 
@@ -124,18 +123,19 @@ We also want to share some small code tricks which can help you to improve your 
 
 - [Active Record Shared Connection](./recipes/active_record_shared_connection.md)
 
-- [Rails Logging](./recipes/logging.md)
+- [Rails 日志记录](./recipes/logging.md)
 
-## Other tools
+## 其他工具
 
 - [RuboCop cops](./misc/rubocop.md)
 
-## What's next
+## 下一步
 
-Have an idea? [Propose](https://github.com/test-prof/test-prof/issues/new) a feature request!
+有好的想法？[提交](https://github.com/test-prof/test-prof/issues/new)一个功能需求吧!
 
-Already using TestProf? [Share your story!](https://github.com/test-prof/test-prof/issues/73)
+已经在使用 TestProf 了？[分享你的故事吧](https://github.com/test-prof/test-prof/issues/73)
 
-## License
+## 许可协议
 
-The gem is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
+根据 [MIT License](http://opensource.org/licenses/MIT) 条款，本 gem 可作为开源使用。
+
