@@ -1,10 +1,10 @@
-# Profiling with StackProf
+# 使用 StackProf 进行分析
 
-[StackProf](https://github.com/tmm1/stackprof) is a sampling call-stack profiler for ruby.
+[StackProf](https://github.com/tmm1/stackprof) 是用于 Ruby 的采样调用堆栈分析器。
 
-## Instructions
+## 教学
 
-Install `stackprof` gem (>= 0.2.9):
+安装 `stackprof` gem (>= 0.2.9):
 
 ```ruby
 # Gemfile
@@ -13,9 +13,9 @@ group :development, :test do
 end
 ```
 
-StackProf profiler has 2 modes: `global` and `per-example`.
+StackProf 分析器有两种模式：`global` 和 `per-example`。
 
-You can activate global profiling using the environment variable `TEST_STACK_PROF`:
+你可以使用环境变量 `TEST_STACK_PROF` 来激活全局分析：
 
 ```sh
 TEST_STACK_PROF=1 bundle exec rake test
@@ -24,13 +24,13 @@ TEST_STACK_PROF=1 bundle exec rake test
 TEST_STACK_PROF=1 rspec ...
 ```
 
-Or in your code:
+或在你的代码中这样写：
 
 ```ruby
 TestProf::StackProf.run
 ```
 
-TestProf provides a built-in shared context for RSpec to profile examples individually:
+TestProf 为 RSpec 提供了一个内置的 shared context 以对测试用例进行单独分析：
 
 ```ruby
 it "is doing heavy stuff", :sprof do
@@ -38,19 +38,19 @@ it "is doing heavy stuff", :sprof do
 end
 ```
 
-**NOTE:** per-example profiling doesn't work when the global profiling is activated.
+**注意：**在 global 被激活时，per-example 分析是无法工作的。
 
-## Report formats
+## 报告格式
 
-Stackprof provides a CLI tool to manipulate generated reports (e.g. convert to different formats).
+Stackprof 提供了一个 CLI 工具对生成的报告进行操作（比如，转换为不同格式）。
 
-By default, Test Prof shows you a command\* to generate an HTML report for analyzing flamegraphs, so you should run it yourself.
+默认情况下，TestProf 为你展示的命令\* 以生成分析火焰图的 HTML 报告，这样你可以自己打开它。
 
-\* only if you're collecting _raw_ samples data, which is the default Test Prof behaviour.
+\* 仅当你收集了_原生_ 用例数据时，而这是 TestProf 的默认行为。
 
-Sometimes it's useful to have a JSON report (e.g. to use it with [speedscope](https://www.speedscope.app)), but `stackprof` only supports this only since version [0.2.13](https://github.com/tmm1/stackprof/blob/master/CHANGELOG.md#0213).
+有时侯 JSON 报告是很有用的（比如，跟 [speedscope](https://www.speedscope.app)一起使用时），但 `stackprof` 仅自 [0.2.13](https://github.com/tmm1/stackprof/blob/master/CHANGELOG.md#0213) 版本起才支持。
 
-If you're using an older version of Stackprof, Test Prof can help in generating JSON reports from _raw_ dumps. For that, use `TEST_STACK_PROF_FORMAT=json` or configure the default format in your code:
+如果你正在使用旧的 Stackprof 版本，TestProf 可帮助从_原生_数据生成 JSON 报告。对此，可使用 `TEST_STACK_PROF_FORMAT=json` 或在你代码中配置默认格式：
 
 ```ruby
 TestProf::StackProf.configure do |config|
@@ -58,22 +58,21 @@ TestProf::StackProf.configure do |config|
 end
 ```
 
-## Profiling application boot
+## 分析启动时间
 
-The application boot time could also makes testing slower. Try to profile your boot process with StackProf using the following command:
+应用的启动时间也会让测试变慢。尝试以如下命令使用 StackProf 来分析启动过程：
 
 ```sh
 TEST_STACK_PROF=boot rspec ./spec/some_spec.rb
 ```
 
-**NOTE:** we recommend to analyze the boot time using flame graphs, that's why raw data collection is always on in `boot` mode.
+**注意：** 我们推荐使用火焰图来分析启动时间，这正是为什么原生数据收集总是在`boot`模式中被开启的原因。
 
-## Configuration
+## 配置
 
-You can change StackProf mode (which is `wall` by default) through `TEST_STACK_PROF_MODE` env variable.
+你可以通过 `TEST_STACK_PROF_MODE` 环境变量更改 StackProf 模式（默认是`wall`）。
 
-You can also change StackProf interval through `TEST_STACK_PROF_INTERVAL` env variable.
-For modes `wall` and `cpu`, `TEST_STACK_PROF_INTERVAL` represents microseconds and will default to 1000 as per `stackprof`.
-For mode `object`, `TEST_STACK_PROF_INTERVAL` represents allocations and will default to 1 as per `stackprof`.
+你也可以通过 `TEST_STACK_PROF_INTERVAL` 环境变量更改 StackProf 的间隔时间。对于 `wall` 和 `cpu` 模式，`TEST_STACK_PROF_INTERVAL` 表示微秒，并且默认每个 `stackprof` 为 1000。
+对于`object`模式，`TEST_STACK_PROF_INTERVAL` 表示分配，并且默认每个 `stackprof` 为 1。
 
-See [stack_prof.rb](https://github.com/test-prof/test-prof/tree/master/lib/test_prof/stack_prof.rb) for all available configuration options and their usage.
+参看 [stack_prof.rb](https://github.com/test-prof/test-prof/tree/master/lib/test_prof/stack_prof.rb) 了解其所有可用的配置选项及其用法。
