@@ -1,10 +1,10 @@
-# Profiling with RubyProf
+# 使用 RubyProf 进行分析
 
-Easily integrate the power of [ruby-prof](https://github.com/ruby-prof/ruby-prof) into your test suite.
+易于把强大的 [ruby-prof](https://github.com/ruby-prof/ruby-prof) 整合进你的测试套件中。
 
-## Instructions
+## 教学
 
-Install `ruby-prof` gem (>= 0.17):
+安装 `ruby-prof` gem (>= 0.17)：
 
 ```ruby
 # Gemfile
@@ -13,9 +13,9 @@ group :development, :test do
 end
 ```
 
-RubyProf profiler has two modes: `global` and `per-example`.
+RubyProf 分析器有两种模式： `global` 和 `per-example`。
 
-You can activate the global profiling using the environment variable `TEST_RUBY_PROF`:
+你可以使用环境变量`TEST_RUBY_PROF` 来激活全局分析：
 
 ```sh
 TEST_RUBY_PROF=1 bundle exec rake test
@@ -24,13 +24,13 @@ TEST_RUBY_PROF=1 bundle exec rake test
 TEST_RUBY_PROF=1 rspec ...
 ```
 
-Or in your code:
+或在你的代码中这样写：
 
 ```ruby
 TestProf::RubyProf.run
 ```
 
-TestProf provides a built-in shared context for RSpec to profile examples individually:
+TestProf 为 RSpec 提供了一个内置的 shared context 以对测试用例进行单独分析：
 
 ```ruby
 it "is doing heavy stuff", :rprof do
@@ -38,19 +38,19 @@ it "is doing heavy stuff", :rprof do
 end
 ```
 
-**NOTE:** per-example profiling doesn't work when the global profiling is activated.
+**注意：**在 global 被激活时，per-example 分析是无法工作的。
 
-## Configuration
+## 配置
 
-The most useful configuration option is `printer` – it allows you to specify a RubyProf [printer](https://github.com/ruby-prof/ruby-prof#printers).
+最有用的配置选项是 `printer` —— 它允许你指定 RubyProf 的 [printer](https://github.com/ruby-prof/ruby-prof#printers)。
 
-You can specify a printer through environment variable `TEST_RUBY_PROF`:
+你可以通过环境变量 `TEST_RUBY_PROF` 指定一个 printer：
 
 ```sh
 TEST_RUBY_PROF=call_stack bundle exec rake test
 ```
 
-Or in your code:
+或在你的代码中这样写：
 
 ```ruby
 TestProf::RubyProf.configure do |config|
@@ -58,24 +58,25 @@ TestProf::RubyProf.configure do |config|
 end
 ```
 
-By default, we use `FlatPrinter`.
+默认情况下，我们使用 `FlatPrinter`。
 
-**NOTE:** to specify the printer for per-example profiles use `TEST_RUBY_PROF_PRINTER` env variable ('cause using `TEST_RUBY_PROF` activates the global profiling).
+**注意：** 要为 per-example 分析指定 printer 请使用 `TEST_RUBY_PROF_PRINTER` 环境变量（因为使用 `TEST_RUBY_PROF` 会激活 global 分析）。
 
-Also, you can specify RubyProf mode (`wall`, `cpu`, etc) through `TEST_RUBY_PROF_MODE` env variable.
+你也可以通过 `TEST_RUBY_PROF_MODE` 环境变量指定 RubyProf 的模式（`wall`, `cpu`, 等等）。
 
-See [ruby_prof.rb](https://github.com/test-prof/test-prof/tree/master/lib/test_prof/ruby_prof.rb) for all available configuration options and their usage.
+参看 [ruby_prof.rb](https://github.com/test-prof/test-prof/tree/master/lib/test_prof/ruby_prof.rb) 了解其所有可用的配置选项及其用法。
 
-### Methods Exclusion
+### 方法排除
 
-It's useful to exclude some methods from the profile to focus only on the application code.
+从分析中排除某些方法以便仅专注于应用代码是很有用的。
 
-TestProf uses RubyProf [`exclude_common_methods!`](https://github.com/ruby-prof/ruby-prof/blob/e087b7d7ca11eecf1717d95a5c5fea1e36ea3136/lib/ruby-prof/profile/exclude_common_methods.rb) by default (disable it with `config.exclude_common_methods = false`).
+TestProf 默认使用 RubyProf 的 [`exclude_common_methods!`](https://github.com/ruby-prof/ruby-prof/blob/e087b7d7ca11eecf1717d95a5c5fea1e36ea3136/lib/ruby-prof/profile/exclude_common_methods.rb) （使用 `config.exclude_common_methods = false`来禁用它）。
 
-We exclude some other common methods and RSpec specific internal methods by default.
-To disable TestProf-defined exclusions set `config.test_prof_exclusions_enabled = false`.
+我们默认排除了一些其他通用方法和 RSpec 特别的内部方法。
 
-You can specify custom exclusions through `config.custom_exclusions`, e.g.:
+要禁用 TestProf 定义的排除，请设置 `config.test_prof_exclusions_enabled = false`。
+
+你可以通过 `config.custom_exclusions` 来指定自定义的排除，比如：
 
 ```ruby
 TestProf::RubyProf.configure do |config|
