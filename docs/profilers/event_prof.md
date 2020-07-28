@@ -1,6 +1,6 @@
-# EventProf
+# Event 分析器
 
-EventProf 在你的测试套件运行期间收集各种测量指标（比如 ActiveSupport::Notifications）。
+EventProf 在你的测试套件运行期间收集各种测量指标（比如  ActiveSupport::Notifications）。
 
 它的工作很类似于 `rspec --profile` 但可追踪任意事件。
 
