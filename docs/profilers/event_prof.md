@@ -1,10 +1,10 @@
 # EventProf
 
-EventProf collects instrumentation (such as ActiveSupport::Notifications) metrics during your test suite run.
+EventProf 在你的测试套件运行期间收集各种测量指标（比如 ActiveSupport::Notifications）。
 
-It works very similar to `rspec --profile` but can track arbitrary events.
+它的工作很类似于 `rspec --profile` 但可追踪任意事件。
 
-Example output:
+输出范例：
 
 ```sh
 [TEST PROF INFO] EventProf results for sql.active_record
@@ -28,22 +28,22 @@ fails (./spec/shared_examples/controllers/invalid_examples.rb:3) – 00:00.007 (
 
 ```
 
-## Instructions
+## 教学
 
-Currently, EventProf supports only ActiveSupport::Notifications
+目前，EventProf 仅支持 ActiveSupport::Notifications。
 
-To activate EventProf with:
+激活 EventProf：
 
 ### RSpec
 
-Use `EVENT_PROF` environment variable set to event name:
+使用 `EVENT_PROF` 环境变量设置为事件名称：
 
 ```sh
 # Collect SQL queries stats for every suite and example
 EVENT_PROF='sql.active_record' rspec ...
 ```
 
-You can track multiple events simultaneously:
+你可以同时追踪多个事件：
 
 ```sh
 EVENT_PROF='sql.active_record,perform.active_job' rspec ...
@@ -51,14 +51,14 @@ EVENT_PROF='sql.active_record,perform.active_job' rspec ...
 
 ### Minitest
 
-Use `EVENT_PROF` environment variable set to event name:
+使用 `EVENT_PROF` 环境变量设置为事件名称：
 
 ```sh
 # Collect SQL queries stats for every suite and example
 EVENT_PROF='sql.active_record' rake test
 ```
 
-or use CLI options as well:
+或者也可以使用 CLI 选项：
 
 ```sh
 # Run a specific file using CLI option
@@ -68,33 +68,30 @@ ruby test/my_super_test.rb --event-prof=sql.active_record
 ruby test/my_super_test.rb --help
 ```
 
-### Using with Minitest::Reporters
+### 与 Minitest::Reporters 一起使用
 
-If you're using `Minitest::Reporters` in your project you have to explicitly declare it
-in your test helper file:
+如果在你的项目中使用了 `Minitest::Reporters`，那么你必须明确在测试帮助方法文件中声明它：
 
 ```sh
 require 'minitest/reporters'
 Minitest::Reporters.use! [YOUR_FAVORITE_REPORTERS]
 ```
 
-#### NOTICE
+#### 注意
 
-When you have `minitest-reporters` installed as a gem but not declared in your `Gemfile`
-make sure to always prepend your test run command with `bundle exec` (but we sure that you always do it).
-Otherwise, you'll get an error caused by Minitest plugin system, which scans all the entries in the
-`$LOAD_PATH` for any `minitest/*_plugin.rb`, thus initialization of `minitest-reporters` plugin which is
-available in that case doesn't happens correctly.
+当你以 gem 安装了 `minitest-reporters` 但并未在你的 `Gemfile` 里声明时，
+确保总是在测试运行命令之前使用 `bundle exec` （但我们相信你总会这样做的）。
+否则，你会得到由 Minitest plugin 系统造成的报错, 该系统对所有的 `minitest/*_plugin.rb` 扫描
+`$LOAD_PATH` 内的入口, 因此该场景中可用的 `minitest-reporters` plugin 的初始化就不正确了。
 
-See [Rails guides](http://guides.rubyonrails.org/active_support_instrumentation.html)
-for the list of available events if you're using Rails.
+如果你在用 Rails，参看 [Rails guides](http://guides.rubyonrails.org/active_support_instrumentation.html)来了解所有可用的事件。
 
-If you're using [rom-rb](http://rom-rb.org) you might be interested in profiling `'sql.rom'` event.
+如果你在用 [rom-rb](http://rom-rb.org)，那么可能会对分析`'sql.rom'` 事件感兴趣。
 
-## Configuration
+## 配置
 
-By default, EventProf collects information only about top-level groups (aka suites),
-but you can also profile individual examples. Just set the configuration option:
+默认情况下，EventProf 仅收集关于 top-level 组的信息（aka suites），
+但你也可以分析单独的用例。只用设置好配置选项：
 
 ```ruby
 TestProf::EventProf.configure do |config|
@@ -102,32 +99,31 @@ TestProf::EventProf.configure do |config|
 end
 ```
 
-Or provide the `EVENT_PROF_EXAMPLES=1` env variable.
+或者提供 `EVENT_PROF_EXAMPLES=1` 环境变量。
 
-Another useful configuration parameter – `rank_by`. It's responsible for sorting stats –
-either by the time spent in the event or by the number of occurrences:
+另一个有用但配置参数是——`rank_by`。它负责对统计数字排序——或者是事件耗费时间或者是出现次数：
 
 ```sh
 EVENT_PROF_RANK=count EVENT_PROF='instantiation.active_record' be rspec
 ```
 
-See [event_prof.rb](https://github.com/test-prof/test-prof/tree/master/lib/test_prof/event_prof.rb) for all available configuration options and their usage.
+参看 [event_prof.rb](https://github.com/test-prof/test-prof/tree/master/lib/test_prof/event_prof.rb) 了解所有可用配置选项及其用法。
 
-## Using with RSpecStamp
+## 与 RSpecStamp 一起使用
 
-EventProf can be used with [RSpec Stamp](../recipes/rspec_stamp.md) to automatically mark _slow_ examples with custom tags. For example:
+EventProf 可跟 [RSpec Stamp](../recipes/rspec_stamp.md) 一起使用来以自定义 tag 自动标识_慢_测试用例，比如：
 
 ```sh
 EVENT_PROF="sql.active_record" EVENT_PROF_STAMP="slow:sql" rspec ...
 ```
 
-After running the command above the slowest example groups (and examples if configured) would be marked with the `slow: :sql` tag.
+运行上面命令之后，最慢的测试用例组（及测试用例，如果配置的话）就会用 `slow: :sql` 的 tag 进行标识。
 
-## Custom Instrumentation
+## 自定义测量器
 
-To use EventProf with your instrumentation engine just complete the two following steps:
+要让 EventProf 和你的测量器引擎一起使用，只用完成下面两步：
 
-- Add a wrapper for your instrumentation:
+- 为你的测量器添加一个封装器：
 
 ```ruby
 # Wrapper over your instrumentation
@@ -143,7 +139,7 @@ module MyEventsWrapper
 end
 ```
 
-- Set instrumenter in the config:
+- 在配置中设定测量器：
 
 ```ruby
 TestProf::EventProf.configure do |config|
@@ -151,47 +147,47 @@ TestProf::EventProf.configure do |config|
 end
 ```
 
-## Custom Events
+## 自定义事件
 
 ### `"factory.create"`
 
-FactoryGirl provides its own instrumentation ('factory_girl.run_factory'); but there is a caveat – it fires an event every time a factory is used, even when we use factory for nested associations. Thus it's not possible to calculate the total time spent in factories due to the double calculation.
+FactoryGirl 提供了两个它自己的测量器（`factory_girl.run_factory`），但有一个警告——每次一个 factory 被使用时就会触发一个事件，即使我们是为嵌套关联关系使用 factory。因此由于重复计算这就不可能计算 factories 所耗费的时间了。
 
-EventProf comes with a little patch for FactoryGirl which provides instrumentation only for top-level `FactoryGirl.create` calls. It is loaded automatically if you use `"factory.create"` event:
+EventProf 为 FactoryGirl 带来了一个小的补丁，其仅为 top-level 的 `FactoryGirl.create` 调用提供测量器。如果你使用 `"factory.create"` 事件，它会自动加载：
 
 ```sh
 EVENT_PROF=factory.create bundle exec rspec
 ```
 
-> @since v0.9.0
+> 自 v0.9.0 起
 
-Also supports Fabrication (tracks implicit and explicit `Fabricate.create` calls).
+也支持 Fabrication（追踪隐式和显式的 `Fabricate.create` 调用）。
 
 ### `"sidekiq.jobs"`
 
-Collects statistics about Sidekiq jobs that have been run inline:
+收集关于 inline 运行的 Sidekiq jobs 的统计数字：
 
 ```sh
 EVENT_PROF=sidekiq.jobs bundle exec rspec
 ```
 
-**NOTE**: automatically sets `rank_by` to `count` ('cause it doesn't make sense to collect the information about time spent – see below).
+**注意**： 会自动把 `rank_by` 设为 `count`（因为收集耗费时间的信息没有意义——参看下边）。
 
 ### `"sidekiq.inline"`
 
-Collects statistics about Sidekiq jobs that have been run inline (excluding nested jobs):
+收集关于 inline 运行的 Sidekiq jobs 的统计数字（除去嵌套 jobs）：
 
 ```sh
 EVENT_PROF=sidekiq.inline bundle exec rspec
 ```
 
-Use this event to profile the time spent running Sidekiq jobs.
+使用该事件来分析正在运行的 Sidekiq jobs 的耗费时间。
 
-## Profile arbitrary methods
+## 分析任意方法
 
-You can also add your custom events to profile specific methods (for example, after figuring out some hot calls with [RubyProf](./ruby_prof.md) or [StackProf](./stack_prof.md)).
+你也可以添加自定义事件来分析特定的方法（例如，在用 [RubyProf](./ruby_prof.md) 或 [StackProf](./stack_prof.md)找出一些最热的调用后）。
 
-For example, having a class doing some heavy work:
+比如，有个 class 做了些很繁重的工作：
 
 ```ruby
 class Work
@@ -201,27 +197,27 @@ class Work
 end
 ```
 
-You can profile it by adding a _monitor_:
+你可以通过添加一个 _monitor_ 来分析：
 
 ```ruby
 # provide a class, event name and methods to monitor
 TestProf::EventProf.monitor(Work, "my.work", :do_smth)
 ```
 
-And then run EventProf as usual:
+然后象平常一样运行 EventProf：
 
 ```sh
 EVENT_PROF=my.work bundle exec rake test
 ```
 
-> @since v0.9.0
+> 自 v0.9.0 起
 
-You can also provide additional options:
+你也可以提供额外的选项：
 
-- `top_level: true | false` (defaults to `false`): defines whether you want to take into account only top-level invocations and ignore nested triggers of this event (that's how "factory.create" is [implemented](https://github.com/test-prof/test-prof/blob/master/lib/test_prof/event_prof/custom_events/factory_create.rb))
-- `guard: Proc` (defaults to `nil`): provide a Proc which could prevent from triggering an event: the method is instrumented only if `guard` returns `true`; `guard` is executed using `instance_exec` and the method arguments are passed to it.
+- `top_level: true | false` （默认为`false`）：定义是否只考虑 top-level 调用并忽略此事件的嵌套触发器（这正是 "factory.create" 如何[实现的](https://github.com/test-prof/test-prof/blob/master/lib/test_prof/event_prof/custom_events/factory_create.rb)）。
+- `guard: Proc` （默认为 `nil`）： 提供一个 Proc，防止触发一个事件：仅当 `guard` 返回 `true`时方法才被测量； `guard` 使用 `instance_exec`执行，并将方法参数传递给它。
 
-For example:
+例如：
 
 ```ruby
 TestProf::EventProf.monitor(
@@ -233,8 +229,7 @@ TestProf::EventProf.monitor(
 )
 ```
 
-You can add monitors _on demand_ (i.e. only when you want to track the specified event) by wrapping
-the code in `TestProf::EventProf::CustomEvents.register` method:
+你可以根据_需要_添加 monitors（比如仅当你想要追踪特定事件时），通过把代码封装到 `TestProf::EventProf::CustomEvents.register`方法内：
 
 ```ruby
 TestProf::EventProf::CustomEvents.register("my.work") do
@@ -245,4 +240,4 @@ end
 TestProf::EventProf::CustomEvents.activate_all(TestProf::EventProf.config.event)
 ```
 
-The block is evaluated only if the specified event is enabled with EventProf.
+这个 block 仅当特定事件在 EventProf 被启动时才执行。
