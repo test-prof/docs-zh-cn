@@ -54,7 +54,7 @@ FPROF=flamegraph bundle exec rake test
 
 That's how a report looks like:
 
-![](../assets/factory-flame.gif)
+<img alt="FactoryProf: Flamegraph report" data-origin="/assets/factory-flame.gif" src="/assets/factory-flame.gif">
 
 How to read this?
 

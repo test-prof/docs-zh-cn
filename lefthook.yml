@@ -7,7 +7,7 @@ pre-commit:
     liche:
       tags: links
       glob: "docs/**/*.md"
-      run: liche -c 2 -r docs/* -d docs/
+      run: liche -c 2 -r docs/* -d docs/ -x "(assets)/"
     forspell:
       tags: grammar
       glob: "**/*.md"
