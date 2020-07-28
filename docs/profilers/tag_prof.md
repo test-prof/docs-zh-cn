@@ -1,10 +1,10 @@
-# TagProf
+# Tag 分析器
 
-TagProf is a simple profiler which collects examples statistics grouped by a provided tag value.
+TagProf 是一个根据所提供 tag 值收集测试用例分组统计数字的简单分析器。
 
-That's pretty useful in conjunction with `rspec-rails` built-in feature – `infer_spec_types_from_location!` – which automatically adds `type` to examples metadata.
+这在结合 `rspec-rails` 的内置特性——`infer_spec_types_from_location!`——使用时很有用，可以自动添加 `type` 到测试用例的 meta 数据。
 
-Example output:
+输出范例：
 
 ```sh
 [TEST PROF INFO] TagProf report for type
@@ -16,38 +16,38 @@ Example output:
       model     00:01.127      40   32.26   12.82     00:00.028
 ```
 
-It shows both the total number of examples in each group and the total time spent (as long as percentages and average values).
+它展示了每一组中测试用例的总数和总耗时（只百分比和平均值）。
 
-You can also generate an interactive HTML report:
+你也可以生成一个交互式 HTML 报告：
 
 ```sh
 TAG_PROF=type TAG_PROF_FORMAT=html bundle exec rspec
 ```
 
-That's how a report looks like:
+报告看起来像这样：
 
 ![TagProf UI](../assets/tag-prof.gif)
 
-## Instructions
+## 教学
 
-TagProf can only be used with RSpec.
+TagProf 只能跟 RSpec 一起使用。
 
-To activate TagProf use `TAG_PROF` environment variable:
+使用 `TAG_PROF` 环境变量来激活 TagProf：
 
 ```sh
 # Group by type
 TAG_PROF=type rspec
 ```
 
-## Profiling events
+## 分析 events
 
-You can combine TagProf with [EventProf](./event_prof.md) to track not only the total time spent but also the time spent for the specified activities (through events):
+你可以把 TagProf 与 [EventProf](./event_prof.md) 结合使用来不仅追踪总耗时也追踪特定活动的耗时（通过事件）：
 
 ```
 TAG_PROF=type TAG_PROF_EVENT=sql.active_record rspec
 ```
 
-Example output:
+输出范例：
 
 ```sh
 [TEST PROF INFO] TagProf report for type
@@ -59,14 +59,15 @@ Example output:
       model     00:01.127           00:00.446     40   32.26   12.82     00:00.028
 ```
 
-Multiple events are also supported.
+多事件也是支持的。
 
-## Pro-Tip: More Types
+## 高级技巧：更多的类型
 
-By default, RSpec only infers types for default Rails app entities (such as controllers, models, mailers, etc.).
-Modern Rails applications typically contain other abstractions too (e.g. services, forms, presenters, etc.), but RSpec is not aware of them and doesn't add any metadata.
+默认情况下，RSpec 对于默认 Rails 应用实体仅指示诸如 controllers、models、mailers 等类型。
 
-That's the quick workaround:
+现代 Rails 应用通常也包含了其他抽象层（比如，services，forms，presenters 等），但 RSpec 对其并不了解，也未加入任何 meta 数据。
+
+这儿有一个变通的办法：
 
 ```ruby
 RSpec.configure do |config|
