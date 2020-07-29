@@ -1,6 +1,6 @@
-# Factory Doctor
+# Factory 医生
 
-One common bad pattern that slows our tests down is unnecessary database manipulation. Consider a _bad_ example:
+一个通常的拖慢我们测试的坏模式是不必要的数据库操作。考虑 _下面_ 的例子：
 
 ```ruby
 # with FactoryBot/FactoryGirl
@@ -18,7 +18,7 @@ it "validates name presence" do
 end
 ```
 
-Here we create a new user record, run all callbacks and validations and save it to the database. We don't need all these! Here is a _good_ example:
+这里我们创建了一条新的 user 记录，运行所有的回调和校验，并把它保存到数据库。而我们完全不需要这样！下面是一个_好的_ 范例：
 
 ```ruby
 # with FactoryBot/FactoryGirl
@@ -36,11 +36,11 @@ it "validates name presence" do
 end
 ```
 
-Read more about [`build_stubbed`](https://robots.thoughtbot.com/use-factory-girls-build-stubbed-for-a-faster-test).
+查看更多有关 [`build_stubbed`](https://robots.thoughtbot.com/use-factory-girls-build-stubbed-for-a-faster-test) 的内容。
 
-FactoryDoctor is a tool that helps you identify such _bad_ tests, i.e. tests that perform unnecessary database queries.
+FactoryDoctor 是一个帮你识别这些_坏_测试的工具，比如，测试执行了不必要的数据库查询。
 
-Example output:
+输出范例：
 
 ```sh
 [TEST PROF INFO] FactoryDoctor report
@@ -53,12 +53,11 @@ User (./spec/models/user_spec.rb:3) (3 records created, 00:00.628)
   validates email (./spec/user_spec.rb:8) – 2 records created, 00:00.514
 ```
 
-**NOTE**: have you noticed the "potentially" word? Unfortunately, FactoryDoctor is not a
-magician (it's still learning) and sometimes it produces false negatives and false positives too.
+**注意**：注意到“potentially” 的字样？不好意思，FactoryDoctor 并非魔术师（其仍在学习中），有时它也会发生“误诊”的事情。
 
-Please, submit an [issue](https://github.com/test-prof/test-prof/issues) if you found a case which makes FactoryDoctor fail.
+如果你发现了造成 FactoryDoctor 失败的场景，请提交 [issue](https://github.com/test-prof/test-prof/issues)。
 
-You can also tell FactoryDoctor to ignore specific examples/groups. Just add the `:fd_ignore` tag to it:
+你也可以告诉 FactoryDoctor 忽略特定的测试用例/组。只要添加 `:fd_ignore` tag 即可：
 
 ```ruby
 # won't be reported as offense
@@ -69,47 +68,48 @@ it "is ignored", :fd_ignore do
 end
 ```
 
-## Instructions
+## 教学
 
-FactoryDoctor supports:
+FactoryDoctor 支持：
 
 - FactoryGirl/FactoryBot
-- Fabrication (**@since v0.9.0**).
+- Fabrication (**自 v0.9.0 起**).
 
 ### RSpec
 
-To activate FactoryDoctor use `FDOC` environment variable:
+使用 `FDOC` 环境变量来激活 FactoryDoctor：
 
 ```sh
 FDOC=1 rspec ...
 ```
 
-### Using with RSpecStamp
+### 与 RSpecStamp 一起使用
 
-FactoryDoctor can be used with [RSpec Stamp](../recipes/rspec_stamp.md) to automatically mark _bad_ examples with custom tags. For example:
+FactoryDoctor 可与 [RSpec Stamp](../recipes/rspec_stamp.md) 一起使用，以自定义 tag 来自动标记 _坏的_ 测试用例。例如：
 
 ```sh
 FDOC=1 FDOC_STAMP="fdoc:consider" rspec ...
 ```
 
-After running the command above all _potentially_ bad examples would be marked with the `fdoc: :consider` tag.
+运行上面命令之后，所有_潜在的_ 坏测试用例会都以`fdoc: :consider` tag 标记出来。
 
 ### Minitest
 
-To activate FactoryDoctor use `FDOC` environment variable:
+使用 `FDOC` 环境变量来激活 FactoryDoctor：
 
 ```sh
 FDOC=1 ruby ...
 ```
 
-or use CLI option as shown below:
+或者使用如下 CLI 选项：
 
 ```sh
 ruby ... --factory-doctor
 ```
 
-The same option to force Factory Doctor to ignore specific examples is also available for Minitest.
-Just use `fd_ignore` inside your example:
+强制 Factory Doctor 忽略特定测试用例的相同选项对于 Minitest 也是可用的。
+
+只要在你的测试用例内使用 `fd_ignore`：
 
 ```ruby
 # won't be reported as offense
@@ -121,27 +121,25 @@ it "is ignored" do
 end
 ```
 
-### Using with Minitest::Reporters
+### 与 Minitest::Reporters 一起使用
 
-If you're using `Minitest::Reporters` in your project you have to explicitly declare it
-in your test helper file:
+如果在你的项目中正在使用 `Minitest::Reporters`，则必须在测试帮助方法文件中明确声明它：
 
 ```sh
 require 'minitest/reporters'
 Minitest::Reporters.use! [YOUR_FAVORITE_REPORTERS]
 ```
 
-**NOTE**: When you have `minitest-reporters` installed as a gem but not declared in your `Gemfile`
-make sure to always prepend your test run command with `bundle exec` (but we sure that you always do it).
-Otherwise, you'll get an error caused by Minitest plugin system, which scans all the entries in the
-`$LOAD_PATH` for any `minitest/*_plugin.rb`, thus initialization of `minitest-reporters` plugin which is
-available in that case doesn't happens correctly.
+**注意**: 当你以 gem 安装了 `minitest-reporters` 但并未在你的 `Gemfile` 里声明时，
+确保总是在测试运行命令之前使用 `bundle exec` （但我们相信你总会这样做的）。
+否则，你会得到由 Minitest plugin 系统造成的报错, 该系统对所有的 `minitest/*_plugin.rb` 扫描
+`$LOAD_PATH` 内的入口, 因此该场景中可用的 `minitest-reporters` plugin 的初始化就不正确了。
 
-## Configuration
+## 配置
 
-> @since v0.9.0
+> 自 v0.9.0 起
 
-The following configuration parameters are available (showing defaults):
+如下配置参数是可用的（展示的为默认情况）：
 
 ```ruby
 TestProf::FactoryDoctor.configure do |config|
@@ -152,4 +150,4 @@ TestProf::FactoryDoctor.configure do |config|
 end
 ```
 
-You can use the corresponding env variables as well: `FDOC_EVENT` and `FDOC_THRESHOLD`.
+你也可以使用相应的环境变量： `FDOC_EVENT` 和 `FDOC_THRESHOLD`。
