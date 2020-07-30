@@ -1,8 +1,8 @@
-# FactoryProf
+# Factory 分析器
 
-FactoryProf tracks your factories usage statistics, i.e. how often each factory has been used.
+FactoryProf 追踪你的 factories 的使用统计数据，比如，每个 factory 是怎样被经常使用的。
 
-Example output:
+输出范例：
 
 ```sh
 [TEST PROF INFO] Factories usage
@@ -18,18 +18,18 @@ Total uniq factories: 119
   ...
 ```
 
-It shows both the total number of the factory runs and the number of _top-level_ runs, i.e. not during another factory invocation (e.g. when using associations.)
+它展示了 factory 运行的总数和 _top-level_ 运行的数量，比如，不在另一个 factory 运行期间（如在使用关联关系时）。
 
-(**@since v0.9.0**) It also shows the time spent generating records with factories.
-(**@since v0.11.0**) It also shows the amount of time taken per factory call.
+（**自 v0.9.0 起**）可以展示使用 factories 生成测试数据的耗费时间。
+**（自 v0.11.0 起**）可以展示每个 factory 调用的数量。
 
-**NOTE**: FactoryProf only tracks the database-persisted factories. In case of FactoryGirl/FactoryBot these are the factories provided by using `create` strategy. In case of Fabrication - objects that created using `create` method.
+**注意**：FactoryProf 仅追踪数据库持久化的 factories。对于 FactoryGirl/FactoryBot，是通过使用 `create` 策略所提供的 factories。对于 Fabrication，是使用 `create` 方法所创建的对象。
 
-## Instructions
+## 教学
 
-FactoryProf can be used with FactoryGirl/FactoryBot or Fabrication - application can be bundled with both gems at the same time.
+FactoryProf 可跟 FactoryGirl/FactoryBot 或者 Fabrication 一起使用——应用程序可以同时安装这两个 gem 使用。
 
-To activate FactoryProf use `FPROF` environment variable:
+使用 `FPROF` 环境变量来激活 FactoryProf：
 
 ```sh
 # Simple profiler
@@ -39,11 +39,11 @@ FPROF=1 rspec
 FPROF=1 bundle exec rake test
 ```
 
-## Factory Flamegraph
+## Factory 火焰图
 
-The most useful feature of FactoryProf is the _FactoryFlame_ report. That's the special interpretation of Brendan Gregg's [flame graphs](http://www.brendangregg.com/flamegraphs.html) which allows you to identify _factory cascades_.
+FactoryProf 最有用的特性就是 _FactoryFlame_ 报告。这是对 Brendan Gregg's 的 [火焰图](http://www.brendangregg.com/flamegraphs.html) 的特殊解读，让你可以识别出 _factory cascades_.
 
-To generate FactoryFlame report set `FPROF` environment variable to `flamegraph`:
+要生成 FactoryFlame 报告，把 `FPROF` 环境变量设置为 `flamegraph`：
 
 ```sh
 FPROF=flamegraph rspec
@@ -52,13 +52,13 @@ FPROF=flamegraph rspec
 FPROF=flamegraph bundle exec rake test
 ```
 
-That's how a report looks like:
+报告看起来是这样的：
 
 <img alt="FactoryProf: Flamegraph report" data-origin="/assets/factory-flame.gif" src="/assets/factory-flame.gif">
 
-How to read this?
+如何解读它？
 
-Every column represents a _factory stack_ or _cascade_, that is a sequence of recursive `#create` method calls. Consider an example:
+每一栏指示一个 _factory stack_ 或 _cascade_，其是一个递归 `#create` 方法调用的序列。考虑下面这个范例：
 
 ```ruby
 factory :comment do
@@ -81,12 +81,12 @@ create(:comment) #=> creates 5 records
 # [:comment, :answer, :question, :author, :author, :author]
 ```
 
-The wider column the more often this stack appears.
+栏越宽，其堆栈出现的频率越高。
 
-The `root` cell shows the total number of `create` calls.
+`root` 单元格展示了 `create` 调用的总数。
 
-## Acknowledgments
+## 感谢
 
-- Thanks to [Martin Spier](https://github.com/spiermar) for [d3-flame-graph](https://github.com/spiermar/d3-flame-graph)
+- [Martin Spier](https://github.com/spiermar) 的 [d3-flame-graph](https://github.com/spiermar/d3-flame-graph)
 
-- Thanks to [Sam Saffron](https://github.com/SamSaffron) for his [flame graphs implementation](https://github.com/SamSaffron/flamegraph).
+- [Sam Saffron](https://github.com/SamSaffron) 的 [flame graphs implementation](https://github.com/SamSaffron/flamegraph).
