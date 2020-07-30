@@ -1,10 +1,10 @@
-# RSpecDissect
+# RSpecDissect 分析器
 
-Do you know how much time you spend in `before` hooks? Or in memoization helpers such as `let`? Usually, the most of the whole test suite time.
+你知道在`before` hooks 上花费了多少时间吗？或者在诸如 `let` 之类的帮助方法上？通常，它们是整个测试套件中耗费最多的时间。
 
-_RSpecDissect_ provides this kind of information and also shows you the worst example groups. The main purpose of RSpecDissect is to identify these slow groups and refactor them using [`before_all`](../recipes/before_all.md) or [`let_it_be`](../recipes/let_it_be.md) recipes.
+_RSpecDissect_ 提供了这种信息，也会向你展示最坏的测试用例组。RSpecDissect 的主要目标是识别出那些慢点用例组，并使用 [`before_all`](../recipes/before_all.md) 或 [`let_it_be`](../recipes/let_it_be.md) 的配方来重构它们。
 
-Example output:
+输出范例：
 
 ```sh
 [TEST PROF INFO] RSpecDissect enabled
@@ -41,29 +41,29 @@ AvailableSlotsController (./spec/controllers/available_slots_controller_spec.rb:
  ↳ stage – 10
 ```
 
-As you can see, the `let` profiler also tracks the provides the information on how many times each `let` declarations has been used within a group (shows top-3 by default).
+如你所见， `let` 分析器也追踪、提供了组内（默认是排在前三位的）每个`let`声明被使用了多少次的信息。
 
-## Instructions
+## 教学
 
-RSpecDissect can only be used with RSpec (which is clear from the name).
+RSpecDissect 只能跟 RSpec 一起使用（顾名思义）。
 
-To activate RSpecDissect use `RD_PROF` environment variable:
+使用 `RD_PROF` 环境变量来激活 RSpecDissect：
 
 ```sh
 RD_PROF=1 rspec ...
 ```
 
-You can also specify the number of top slow groups through `RD_PROF_TOP` variable:
+你也可以通过 `RD_PROF_TOP` 变量指定展示前几个最慢的组：
 
 ```sh
 RD_PROF=1 RD_PROF_TOP=10 rspec ...
 ```
 
-You can also track only `let` or `before` usage by specifying `RD_PROF=let` and `RD_PROF=before` respectively.
+你也可以通过各自指定 `RD_PROF=let` 和 `RD_PROF=before`来仅追踪`let`或`before`的使用。
 
-For `let` profiler you can also specify the number of top `let` declarations to print through `RD_PROF_LET_TOP=10` env var.
+对于 `let` 分析器，你也可以通过 `RD_PROF_LET_TOP=10` 环境变量指定打印排位靠前的`let`声明的数量。 
 
-To disable `let` stats add:
+要禁用 `let` 统计，添加这个设置：
 
 ```ruby
 TestProf::RSpecDissect.configure do |config|
@@ -71,12 +71,12 @@ TestProf::RSpecDissect.configure do |config|
 end
 ```
 
-## Using with RSpecStamp
+## 与 RSpecStamp 一起使用
 
-RSpecDissect can be used with [RSpec Stamp](../recipes/rspec_stamp.md) to automatically mark _slow_ examples with custom tags. For example:
+RSpecDissect 可以跟 [RSpec Stamp](../recipes/rspec_stamp.md) 一起使用，以自定义 tag 来自动标记 _慢_ 测试用例。例如：
 
 ```sh
 RD_PROF=1 RD_PROF_STAMP="slow" rspec ...
 ```
 
-After running the command above the slowest example groups would be marked with the `:slow` tag.
+运行上面命令后，最慢的测试用例组就以`:slow` tag 被标记了。
