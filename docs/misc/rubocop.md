@@ -1,8 +1,8 @@
-# Custom RuboCop Cops
+# 自定义 RuboCop Cops
 
-TestProf comes with the [RuboCop](https://github.com/bbatsov/rubocop) cops that help you write more performant tests.
+TestProf 自带 [RuboCop](https://github.com/bbatsov/rubocop) 的 cops 帮助你编写更有效率的测试。
 
-To enable them, require `test_prof/rubocop` in your RuboCop configuration:
+要启用它们，需要把 `test_prof/rubocop` 放到 RuboCop 的配置中：
 
 ```yml
 # .rubocop.yml
@@ -10,14 +10,14 @@ require:
  - 'test_prof/rubocop'
 ```
 
-To configure cops to your needs:
+根据你的需要来配置 cops：
 
 ```yml
 RSpec/AggregateExamples:
   AddAggregateFailuresMetadata: false
 ```
 
-Or you can just require it dynamically:
+或者你也可以动态地 require 它：
 
 ```sh
 bundle exec rubocop -r 'test_prof/rubocop' --only RSpec/AggregateExamples
@@ -25,12 +25,12 @@ bundle exec rubocop -r 'test_prof/rubocop' --only RSpec/AggregateExamples
 
 ## RSpec/AggregateExamples
 
-This cop encourages you to use one of the greatest features of the recent RSpec – aggregating failures within an example.
+这个 cop 鼓励你使用近期 RSpec 一个极棒的特性——对测试用例内的失败进行聚合。
 
-Instead of writing one example per assertion, you can group _independent_ assertions together, thus running all setup hooks only once.
-That can dramatically increase your performance (by reducing the total number of examples).
+不用每个断言都编写一个用例，你可以对_独立_断言一起分组，这样运行所有的 setup hoods 仅需一次。
+这就急剧地提升了你的性能（通过减少测试用例的总数）。
 
-Consider an example:
+考虑这个范例：
 
 ```ruby
 # bad
@@ -48,10 +48,10 @@ it "returns the second page", :aggregate_failures do
 end
 ```
 
-Auto-correction will typically add `:aggregate_failures` to examples, but if your project enables it globally, or selectively by e.g. deriving metadata from file location, you may opt-out of adding it using `AddAggregateFailuresMetadata` config option.
+自动纠正会一般把 `:aggregate_failures` 添加到测试用例，但如果你的项目全局启用，或通过本地文件获取 meta 数据来选择性地启用，你可以使用 `AddAggregateFailuresMetadata` 配置选项来选择不添加它。
 
-This cop supports auto-correct feature, so you can automatically refactor you legacy tests!
+该 cop 支持自动纠正的特性，所以你可以自动重构遗留测试！
 
-**NOTE**: `its` examples shown here have been deprecated as of RSpec 3, but users of the [rspec-its gem](https://github.com/rspec/rspec-its) can leverage this cop to cut out that dependency.
+**注意**：这里展示的`its` 用例在 RSpec 3 中已经被抛弃了，但 [rspec-its gem](https://github.com/rspec/rspec-its) 的用户可以通过该 cop 来消除那种依赖。
 
-**NOTE**: auto-correction of examples using block matchers, such as `change` is deliberately not supported.
+**注意**：对于使用了 matchers 代码块的测试用例的自动纠正，比如 `change` 是故意不被支持的。
