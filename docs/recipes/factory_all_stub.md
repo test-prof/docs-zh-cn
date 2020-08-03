@@ -1,28 +1,28 @@
 # FactoryAllStub
 
-_Factory All Stub_ is a spell to force FactoryBot/FactoryGirl use only `build_stubbed` strategy (even if you call `create` or `build`).
+_Factory All Stub_ 是一个强制 FactoryBot/FactoryGirl 仅使用 `build_stubbed` 策略的说法（即使你调用了 `create` 或 `build`）。
 
-The idea behind it is to quickly fix [Factory Doctor](../profilers/factory_doctor.md) offenses (and even do that automatically).
+背后的思想是快速修复 [Factory Doctor](../profilers/factory_doctor.md) 的问题（并甚至自动执行该操作）。
 
-**NOTE**. Only works with FactoryGirl/FactoryBot. Should be considered only as a temporary specs fix.
+**注意**，仅支持 FactoryGirl/FactoryBot。应该仅被视为一种 specs 的临时修复。
 
-## Instructions
+## 教学
 
-First, you have to initialize `FactoryAllStub`:
+首先，你必须初始化 `FactoryAllStub`：
 
 ```ruby
 TestProf::FactoryAllStub.init
 ```
 
-The initialization process injects custom logic into FactoryBot generator.
+初始化过程注入自定义逻辑到 FactoryBot 生成器内部。
 
-To enable _all-stub_ mode:
+启用 _all-stub_ 模式：
 
 ```ruby
 TestProf::FactoryAllStub.enable!
 ```
 
-To disable _all-stub_ mode and use factories as always:
+禁用 _all-stub_ 模式并总是使用 factories：
 
 ```ruby
 TestProf::FactoryAllStub.enable!
@@ -30,14 +30,14 @@ TestProf::FactoryAllStub.enable!
 
 ## RSpec
 
-In your `spec_helper.rb` (or `rails_helper.rb` if any):
+在 `spec_helper.rb` 中（或者 `rails_helper.rb` 中，如果有的话）：
 
 ```ruby
 require "test_prof/recipes/rspec/factory_all_stub"
 ```
 
-That would automatically initialize `FactoryAllStub` (no need to call `.init`) and provide
-`"factory:stub"` shared context with enables it for the marked examples or example groups:
+这会自动初始化 `FactoryAllStub` （无需调用 `.init`）并提供
+`"factory:stub"` 的 shared context，用来对所标记的测试用例或测试组启用：
 
 ```ruby
 describe "User" do
@@ -50,7 +50,7 @@ describe "User" do
 end
 ```
 
-`FactoryAllStub` was designed to be used with `FactoryDoctor` the following way:
+`FactoryAllStub` 被设计跟 `FactoryDoctor` 以如下方式一起使用：
 
 ```sh
 # Run FactoryDoctor and mark all offensive examples with factory:stub
