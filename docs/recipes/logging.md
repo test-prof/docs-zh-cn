@@ -1,16 +1,16 @@
-# Verbose Logging
+# 详细日志
 
-Sometimes digging through logs is the best way to figure out what's going on.
+有时侯挖掘日志是找出正在发生的事情的最佳方法。
 
-When you run your test suite, logs are not printed out by default (although written to `test.log` – who cares?).
+当你运行测试套件时，默认是不打印日志出来的（尽管写到了 `test.log`——谁会去看呢？）
 
-We provide a recipe to turn verbose logging for a specific example/group.
+我们提供了一个配方以对特定的测试用例/组来开启详细日志
 
-**NOTE:** Rails only.
+**注意：** 仅支持 Rails。
 
-## Instructions
+## 教学
 
-Drop this line to your `rails_helper.rb` / `spec_helper.rb` / `test_helper.rb` / whatever:
+把下面这行放入你的 `rails_helper.rb` / `spec_helper.rb` / `test_helper.rb`，哪个都行：
 
 ```ruby
 require "test_prof/recipes/logging"
@@ -18,7 +18,7 @@ require "test_prof/recipes/logging"
 
 ### Log everything
 
-To turn on logging globally use `LOG` env variable:
+使用环境变量 `LOG` 来启用全局日志记录：
 
 ```sh
 # log everything to stdout
@@ -33,9 +33,9 @@ LOG=ar rspec ...
 
 ### Per-example logging
 
-**NOTE:** RSpec only.
+**注意：** 仅支持 RSpec。
 
-Activate logging by adding special tag – `:log`:
+通过添加特别 tag—— `:log`来激活日志记录：
 
 ```ruby
 # Add the tag and you will see a lot of interesting stuff in your console
@@ -49,7 +49,7 @@ describe "GET #index", :log do
 end
 ```
 
-To enable only Active Record log use `log: :ar` tag:
+要只对 Active Record 启用，使用 `log: :ar` tag：
 
 ```ruby
 describe "GET #index", log: :ar do
@@ -59,8 +59,8 @@ end
 
 ### Logging helpers
 
-For more granular control you can use `with_logging` (log everything) and
-`with_ar_logging` (log Active Record) helpers:
+对于更多粒度的控制，你可以使用 `with_logging` （记录一切）和
+`with_ar_logging` （记录 Active Record）两个帮助方法：
 
 ```ruby
 it "does somthing" do
@@ -72,7 +72,7 @@ it "does somthing" do
 end
 ```
 
-**NOTE:** in order to use this helpers with Minitest you should include the `TestProf::Rails::LoggingHelpers` module manually:
+**注意：** 要在 Minitest 使用该帮助方法，你应该手动包含 `TestProf::Rails::LoggingHelpers` 模块：
 
 ```ruby
 class MyLoggingTest < Minitest::Test
