@@ -1,10 +1,10 @@
-# Tests Sampling
+# 测试抽样
 
-Sometimes it's useful to run profilers against randomly chosen tests. Unfortunately, test frameworks don't support such functionality. That's why we've included small patches for RSpec and Minitest in TestProf.
+有时候在随机选择的测试上运行分析器是很有用的。不幸的是，测试框架不支持这样的功能。这就是我们在 TestProf 中包含了针对 RSpec 和 Minitest 的小补丁的原因。
 
-## Instructions
+## 教学
 
-Require the corresponding patch:
+Require 相应的补丁：
 
 ```ruby
 # For RSpec in your spec_helper.rb
@@ -14,23 +14,23 @@ require "test_prof/recipes/rspec/sample"
 require "test_prof/recipes/minitest/sample"
 ```
 
-And then just add `SAMPLE` env variable with the number examples you want to run:
+然后只要添加环境变量 `SAMPLE` 带上你期望的抽样数字即可：
 
 ```sh
 SAMPLE=10 rspec
 ```
 
-You can also run random set of example groups (or suites) using `SAMPLE_GROUPS` variable:
+你也可以使用 `SAMPLE_GROUPS` 变量来运行随机的测试用例组（或者 suites）：
 
 ```sh
 SAMPLE_GROUPS=10 rspec
 ```
 
-Note that you can use tests sampling with RSpec filters:
+注意，你可以把测试抽样与 RSpec filters 一起使用：
 
 ```sh
 SAMPLE=10 rspec --tag=api
 SAMPLE_GROUPS=10 rspec -e api
 ```
 
-That's it. Enjoy!
+完成。享受吧！
