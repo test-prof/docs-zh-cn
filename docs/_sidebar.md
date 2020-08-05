@@ -19,7 +19,7 @@
   * [FactoryAllStub](/recipes/factory_all_stub.md)
   * [RSpec Stamp](/recipes/rspec_stamp.md)
   * [Tests Sampling](/recipes/tests_sampling.md)
-  * [Active Record Shared Connection](/recipes/active_record_shared_connection.md)
+  * [Active Record 共享连接](/recipes/active_record_shared_connection.md)
   * [Rails 日志记录](/recipes/logging.md)
 
 * 杂项
