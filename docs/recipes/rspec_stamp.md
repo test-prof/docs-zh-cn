@@ -1,20 +1,20 @@
 # RSpecStamp
 
-RSpecStamp is a tool to automatically _tag_ failed examples with custom tags.
+RSpecStamp 是一个自动为失败测试用例标记上自定义 tag 的工具。
 
-It _literally_ adds tags to your examples (i.e. rewrites them).
+它_在字面上_给你的用例加上 tag（比如，重写它们）。
 
-The main purpose of RSpecStamp is to make testing codebase refactoring easy. Changing global configuration may cause a lot of failures. You can patch failing spec by adding a shared context. And here comes RSpecStamp.
+RSpecStamp 的主要目标是使测试代码库重构变得容易。修改全局配置可能造成许多测试失败。你可以通过添加 shared context 为失败的 spec 打上补丁。这里 RSpecStamp 就派上用场了。
 
-## Example Use Case: Sidekiq Inline
+## 范例场景：Sidekiq Inline
 
-Using `Sidekiq::Testing.inline!` may be considered a _bad practice_ (see [here](https://github.com/mperham/sidekiq/issues/3495)) due to its negative performance impact. But it's still widely used.
+使用 `Sidekiq::Testing.inline!` 由于其不良的性能影响可以被看作是一种 _差_ 的代码实践（原因见此 [here](https://github.com/mperham/sidekiq/issues/3495)）。但其仍然被广泛使用着。
 
-How to migrate from `inline!` to `fake!`?
+如何从 `inline!` 迁移到 `fake!`？
 
-Step 0. Make sure that all your tests pass.
+第 0 步，确保你的全部测试都是通过的。
 
-Step 1. Create a shared context to conditionally turn on `inline!` mode:
+第 1 步，创建一个 shared context，有条件地打开 `inline!` 模式：
 
 ```ruby
 shared_context "sidekiq:inline", sidekiq: :inline do
@@ -22,28 +22,28 @@ shared_context "sidekiq:inline", sidekiq: :inline do
 end
 ```
 
-Step 2. Turn on `fake!` mode globally.
+第 2 步，全局打开 `fake!` 模式。
 
-Step 3. Run `RSTAMP=sidekiq:inline rspec`.
+第 3 步，运行 `RSTAMP=sidekiq:inline rspec`。
 
-The output of the command above contains information about the _stamping_ process:
+上面命令的输出内容包含了 _stamping_ 过程的信息：
 
-- How many files have been affected?
+- 有多少文件被影响到？
 
-- How many patches were made?
+- 打了多少补丁？
 
-- How many patches failed?
+- 多少补丁失败了？
 
-- How many files have been ignored?
+- 有多少文件被忽略了？
 
-Now all (or almost all) failing specs are tagged with `sidekiq: :inline`. Run the whole suite again and check it there are any failures left.
+现在所有（或几乎所有）失败的 specs 都被打上 `sidekiq: :inline`的 tag 了。再次运行整个测试套件，检查是否还有遗留第失败测试。
 
-There is also a `dry-run` mode (activated by `RSTAMP_DRY_RUN=1` env variable) which prints out patches instead of re-writing files.
+也有一种 `dry-run` 模式（通过 `RSTAMP_DRY_RUN=1` 环境变量激活），打印出补丁内容而不是直接重写文件。
 
-## Configuration
+## 配置
 
-By default, RSpecStamp ignores examples located in `spec/support` directory (typical place to put shared examples in).
-You can add more _ignore_ patterns:
+默认情况下，RSpecStamp 忽略 `spec/support` 目录下的用例（放置 shared 用例的典型位置）。
+你可以添加更多的 _忽略_ 模式：
 
 ```ruby
 TestProf::RSpecStamp.configure do |config|
