@@ -1,12 +1,12 @@
 # FactoryDefault
 
-_Factory Default_ aims to help you cope with _factory cascades_ (see [FactoryProf](../profilers/factory_prof.md)) by reusing associated records.
+_Factory Default_ 旨在通过重用关联关系数据记录帮你对付 _factory cascades_（参看 [FactoryProf](../profilers/factory_prof.md)）。
 
-**NOTE**. Only works with FactoryGirl/FactoryBot.
+**注意**，仅可用于 FactoryGirl/FactoryBot。
 
-It can be very useful when you're working on a typical SaaS application (or other hierarchical data).
+当你在处理典型的 SaaS 应用（或其他分等级的数据）时，它会很有用。
 
-Consider an example. Assume we have the following factories:
+考虑一个例子。假设你有如下的 factories：
 
 ```ruby
 factory :account do
@@ -28,7 +28,7 @@ factory :task do
 end
 ```
 
-And we want to test the `Task` model:
+而我们想要测试 `Task` model：
 
 ```ruby
 describe "PATCH #update" do
@@ -43,11 +43,11 @@ describe "PATCH #update" do
 end
 ```
 
-How many users and accounts are created per example? Two and four respectively.
+每个测试用例会创建多少个 users 和 accounts？ 分别是两个和四个。
 
-And it breaks our logic (every object should belong to the same account).
+而且它破坏了我们的逻辑（每个对象应该属于同一个 account）。
 
-Typical workaround:
+典型的变通办法是：
 
 ```ruby
 describe "PATCH #update" do
@@ -62,9 +62,9 @@ describe "PATCH #update" do
 end
 ```
 
-That works. And there are some cons: it's a little bit verbose and error-prone (easy to forget something).
+这是能工作。然而有一些缺点：有点太啰嗦了，且有错误的倾向（容易忘记某些东西）。
 
-Here is how we can deal with it using FactoryDefault:
+下面是我们如何使用 FactoryDefault 来处理它：
 
 ```ruby
 describe "PATCH #update" do
@@ -84,21 +84,21 @@ describe "PATCH #update" do
 end
 ```
 
-**NOTE**. This feature introduces a bit of _magic_ to your tests, so use it with caution ('cause tests should be human-readable first). Good idea is to use defaults for top-level entities only (such as tenants in multi-tenancy apps).
+**注意**，该特性引入了一些_魔法_到你的测试中，请谨慎使用。（因为测试应该首先要易于人们阅读）。好的做法是仅用于 top-level（比如多租户中 App 中的租户）。
 
-## Instructions
+## 教学
 
-In your `spec_helper.rb`:
+在 `spec_helper.rb` 中：
 
 ```ruby
 require "test_prof/recipes/rspec/factory_default"
 ```
 
-This adds two new methods to FactoryBot:
+这为 FactoryBot 添加了两个新方法：
 
-- `FactoryBot#set_factory_default(factory, object)` – use the `object` as default for associations built with `factory`
+- `FactoryBot#set_factory_default(factory, object)`——对于 `factory` 构建的关联关系，使用 `object` 作为默认值。
 
-Example:
+范例：
 
 ```ruby
 let(:user) { create(:user) }
@@ -106,13 +106,13 @@ let(:user) { create(:user) }
 before { FactoryBot.set_factory_default(:user, user) }
 ```
 
-- `FactoryBot#create_default(factory, *args)` – is a shortcut for `create` + `set_factory_default`.
+- `FactoryBot#create_default(factory, *args)` —— `create` + `set_factory_default`的快捷方式。
 
-**NOTE**. Defaults are **cleaned up after each example** by default. That means you cannot create defaults within `before(:all)` / [`before_all`](./before_all.md) / [`let_it_be`](./let_it_be.md) definitions. That could be changed in the future, for now [check this workaround](https://github.com/test-prof/test-prof/issues/125#issuecomment-471706752).
+**注意**，Defaults 默认是**在每个测试用例后被清除掉**。这意味着你在 `before(:all)` / [`before_all`](./before_all.md) / [`let_it_be`](./let_it_be.md) 定义的内部不能创建默认值。这在未来可能会改变，目前 [请查看这个变通办法](https://github.com/test-prof/test-prof/issues/125#issuecomment-471706752)。
 
-### Working with traits
+### 与 traits 一起使用
 
-When you have traits in your associations like:
+当你在关联关系中有类似这样的 traits 时：
 
 ```ruby
 factory :post do
@@ -124,7 +124,7 @@ factory :view do
 end
 ```
 
-and set a default for `user` factory - you will find the same object used in all of the above factories. Sometimes this may break your logic.
+并为 `user` factory 设置了默认值——那么你会发现同样的对象被用于上面所有 factories 中。有时候这会破坏你的逻辑。
 
-To prevent this - set `FactoryDefault.preserve_traits = true` or use per-factory override
-`create_default(:user, preserve_traits: true)`. This reverts back to original FactoryBot behavior for associations that have explicit traits defined.
+要防止这个——请设置 `FactoryDefault.preserve_traits = true` 或者使用 per-factory 来覆盖
+`create_default(:user, preserve_traits: true)`。 这会针对有明确定义的 traits 的关联关系恢复到初始的  FactoryBot 行为。
