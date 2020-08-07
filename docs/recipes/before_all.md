@@ -1,12 +1,12 @@
 # Before All
 
-Rails has a great feature – `transactional_tests`, i.e. running each example within a transaction which is roll-backed in the end.
+Rails 有一个很棒的特性——`transactional_tests`，比如，在一个事务之内运行每个测试用例，该用例会在结束时回滚。
 
-Thus no example pollutes global database state.
+这样就没有测试用例污染全局数据库状态了。
 
-But what if have a lot of examples with a common setup?
+但如果在一个通用 setup 有许多用例的情况呢？
 
-Of course, we can do something like this:
+当然，我们可以象这样来做：
 
 ```ruby
 describe BeatleWeightedSearchQuery do
@@ -21,7 +21,7 @@ describe BeatleWeightedSearchQuery do
 end
 ```
 
-Or you can try `before(:all)`:
+或者你也可以尝试 `before(:all)`：
 
 ```ruby
 describe BeatleWeightedSearchQuery do
@@ -34,10 +34,10 @@ describe BeatleWeightedSearchQuery do
 end
 ```
 
-But then you have to deal with database cleaning, which can be either tricky or slow.
+但然后你就不得不处理数据库的清理工作，其要么乏味要么迟缓。
 
-There is a better option: we can wrap the whole example group into a transaction.
-And that's how `before_all` works:
+有一个更好的做法：我们可以把整个测试用例组包裹在一个事务内。
+而这正是 `before_all` 工作的方式：
 
 ```ruby
 describe BeatleWeightedSearchQuery do
@@ -50,34 +50,32 @@ describe BeatleWeightedSearchQuery do
 end
 ```
 
-That's all!
+就是如此！
 
-**NOTE**: requires RSpec >= 3.3.0.
+**注意**：需要 RSpec >= 3.3.0。
 
-**NOTE**: Great superpower that `before_all` provides comes with a great responsibility.
-Make sure to check the [Caveats section](#caveats) of this document for details.
+**注意**：`before_all` 所提供的强大能力要求你承担相应强大的责任。
+确认查看了 [Caveats section](#caveats) 该文的具体细节。
 
-## Instructions
+## 教学
 
 ### RSpec
 
-In your `rails_helper.rb` (or `spec_helper.rb` after *ActiveRecord* has been loaded):
+在你的 `rails_helper.rb`中（或 `spec_helper.rb` 中的 *ActiveRecord* 被加载之后）：
 
 ```ruby
 require "test_prof/recipes/rspec/before_all"
 ```
 
-**NOTE**: `before_all` (and `let_it_be` that depends on it), does not wrap individual
-tests in a database transaction of its own. Use Rails' native `use_transactional_tests`
-(`use_transactional_fixtures` in Rails < 5.1), RSpec Rails' `use_transactional_fixtures`,
-DatabaseCleaner, or custom code that begins a transaction before each test and rolls it
-back after.
+**注意**：`before_all` （和依赖它的 `let_it_be`），未把单独的测试包裹在它自己的数据库事务中。请使用 Rails 原生的 `use_transactional_tests`
+（Rails < 5.1中是`use_transactional_fixtures` ），RSpec Rails 的`use_transactional_fixtures`，
+DatabaseCleaner，或者在每个测试用例前开始事务并在结束后回滚的自定义代码。
 
-### Minitest (Experimental)
+### Minitest（实验性的）
 
-\*_Experimental_ means that I haven't tried it in _production_.
+\*_实验性的_ 意味着我还没有在生产环境中用过。
 
-It is possible to use `before_all` with Minitest too:
+可以与 Minitest 一起使用 `before_all` ：
 
 ```ruby
 require "test_prof/recipes/minitest/before_all"
@@ -96,11 +94,11 @@ class MyBeatlesTest < Minitest::Test
 end
 ```
 
-## Database adapters
+## 数据库适配器
 
-You can use `before_all` not only with ActiveRecord (which is supported out-of-the-box) but with other database tools too.
+你可以不只跟 ActiveRecord（开箱即用）也可跟其他数据库工具一起使用 `before_all`。
 
-All you need is to build a custom adapter and configure `before_all` to use it:
+你需要做的就是构建一个自定义适配器并配置 `before_all` 使用它：
 
 ```ruby
 class MyDBAdapter
@@ -122,9 +120,9 @@ TestProf::BeforeAll.adapter = MyDBAdapter.new
 
 ## Hooks
 
-> @since v0.9.0
+> 自 v0.9.0 起
 
-You can register callbacks to run before/after `before_all` opens and rollbacks a transaction:
+你可以在 `before_all` 打开和回滚一个事务之前/之后注册回调来运行它：
 
 ```ruby
 TestProf::BeforeAll.configure do |config|
@@ -140,13 +138,13 @@ TestProf::BeforeAll.configure do |config|
 end
 ```
 
-See the example in [Discourse](https://github.com/discourse/discourse/blob/4a1755b78092d198680c2fe8f402f236f476e132/spec/rails_helper.rb#L81-L141).
+请查看 [Discourse](https://github.com/discourse/discourse/blob/4a1755b78092d198680c2fe8f402f236f476e132/spec/rails_helper.rb#L81-L141) 中的范例。
 
-## Caveats
+## 警告
 
-### Database is rolled back to a pristine state, but the objects are not
+### 数据库是被回滚到全新的初始状态，但对象并非如此。
 
-If you modify objects generated within a `before_all` block in your examples, you maybe have to re-initiate them:
+如果你在测试用例中更改了 `before_all` 代码块中所生成的对象，那么可能不得不重新初始化它们：
 
 ```ruby
 before_all do
@@ -167,7 +165,7 @@ it "when user is regular" do
 end
 ```
 
-The easiest way to solve this is to reload record for every example (it's still much faster than creating a new one):
+解决这个问题最容易的方式是每个测试用例都重新加载记录（这_仍然_比创建一个新的要快得多）：
 
 ```ruby
 before_all do
@@ -184,13 +182,12 @@ def setup
 end
 ```
 
-### Database is not rolled back between tests
+### 数据库在测试之间没有回滚
 
-Database is not rolled back between RSpec examples, only between example groups.
-We don't want to reinvent the wheel and encourage you to use other tools that
-provide this out of the box.
+数据库在 RSpec 测试用例之间不回滚，仅在测试用例组之间回滚。
+我们不想重新发明轮子，所以鼓励你使用其他自带支持该功能的工具。
 
-If you're using RSpec Rails, turn on `RSpec.configuration.use_transactional_fixtures` in your `spec/rails_helper.rb`:
+如果你使用 RSpec Rails，在你的 `spec/rails_helper.rb`中打开`RSpec.configuration.use_transactional_fixtures`：
 
 ```ruby
 RSpec.configure do |config|
@@ -198,19 +195,19 @@ RSpec.configure do |config|
 end
 ```
 
-Make sure to set `use_transactional_tests` (`use_transactional_fixtures` in Rails < 5.1) to `true` if you're using Minitest.
+如果你使用 Minitest，请确认设置了 `use_transactional_tests`（在 Rails < 5.1 中是`use_transactional_fixtures` ）为 `true` 。
 
-If you're using DatabaseCleaner, make sure it rolls back the database between tests.
+如果你在使用 DatabaseCleaner，请确认其是在测试之间进行回滚。
 
-## Usage with Isolator
+## 与 Isolator 一起使用的方法
 
-[Isolator](https://github.com/palkan/isolator) is a runtime detector of potential atomicity breaches within DB transactions (e.g. making HTTP calls or enqueuing background jobs).
+[Isolator](https://github.com/palkan/isolator) 是一个数据库事务内潜在违反原子性的运行时检测器（比如，进行 HTTP 调用或者后台队列作业）。
 
-TestProf recognizes Isolator out-of-the-box and make it ignore `before_all` transactions.
+TestProf 自带对 Isolator 的识别并使其忽略 `before_all` 的事务。
 
-You just need to make sure that you require `isolator` before loading `before_all` (or `let_it_be`).
+你只需确保在加载 `before_all`（或 `let_it_be`）之前 require `isolator`。
 
-Alternatively, you can load the patch explicitly:
+要不然，你也可以明确地加载该补丁：
 
 ```ruby
 # after loading before_all or/and let_it_be
