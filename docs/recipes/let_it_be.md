@@ -1,8 +1,8 @@
 # Let It Be
 
-Let's bring a little bit of magic and introduce a new way to set up a _shared_ test data.
+让我们带来一点魔法，介绍一种建立_shared_测试数据的新方法。
 
-Suppose you have the following setup:
+假设你有如下设定：
 
 ```ruby
 describe BeatleWeightedSearchQuery do
@@ -17,9 +17,9 @@ describe BeatleWeightedSearchQuery do
 end
 ```
 
-We don't need to re-create the Fab Four for every example, do we?
+我们不需要为每个测试用例都创建这个“四人组”，对吧？
 
-We already have [`before_all`](./before_all.md) to solve the problem of _repeatable_ data:
+已经有了 [`before_all`](./before_all.md) 来解决关于_重复性数据_的问题：
 
 ```ruby
 describe BeatleWeightedSearchQuery do
@@ -34,9 +34,9 @@ describe BeatleWeightedSearchQuery do
 end
 ```
 
-That technique works pretty good but requires us to use instance variables and define everything at once. Thus it's not easy to refactor existing tests which use `let/let!` instead.
+这个方法工作良好，但需要我们使用实例变量以及一次性定义所有东西。这样便不易于重构使用 `let/let!`的已有测试。
 
-With `let_it_be` you can do the following:
+使用 `let_it_be` 你就能做到如下：
 
 ```ruby
 describe BeatleWeightedSearchQuery do
@@ -51,20 +51,20 @@ describe BeatleWeightedSearchQuery do
 end
 ```
 
-That's it! Just replace `let!` with `let_it_be`. That's equal to the `before_all` approach but requires less refactoring.
+完事！只用把 `let!` 替换为 `let_it_be`即可。这等价于 `before_all` 方案而只用更少的重构。
 
-**NOTE**: Great superpower that `before_all` provides comes with a great responsibility.
-Make sure to check the [Caveats section](#caveats) of this document for details.
+**注意**： `before_all` 提供的强大能力需要担负强大的责任。
+确认参考 [Caveats section](#caveats) 文档的具体细节。
 
-## Instructions
+## 教学
 
-In your `rails_helper.rb` or `spec_helper.rb`:
+在 `rails_helper.rb` 或 `spec_helper.rb`中：
 
 ```ruby
 require "test_prof/recipes/rspec/let_it_be"
 ```
 
-In your tests:
+在测试中：
 
 ```ruby
 describe MySuperDryService do
@@ -74,26 +74,24 @@ describe MySuperDryService do
 end
 ```
 
-`let_it_be` won't automatically bring the database to its previous state between
-the examples, it only does that between example groups.
-Use Rails' native `use_transactional_tests` (`use_transactional_fixtures` in Rails < 5.1),
-RSpec Rails' `use_transactional_fixtures`, DatabaseCleaner, or custom code that
-begins a transaction before each test and rolls it back after.
+`let_it_be` 不会在测试用例之间自动把数据库恢复之前的状态，它仅在测试用例组之间这样做。
+请使用 Rails 原生的 `use_transactional_tests` （ Rails < 5.1 中是`use_transactional_fixtures` ），
+RSpec Rails 的 `use_transactional_fixtures`，DatabaseCleaner，或者在每个测试用例前开始事务并在结束后回滚的自定义代码。
 
-## Caveats
+## 警告
 
-### Database is rolled back to a pristine state, but the objects are not
+### 数据库是被回滚到全新的初始状态，但对象并非如此。
 
-If you modify objects generated within a `let_it_be` block in your examples, you maybe have to re-initiate them.
-We have a built-in _modifiers_ support for that.
+如果你在测试用例中更改了 `let_it_be` 代码块中所生成的对象，那么可能不得不重新初始化它们。
 
-### Database is not rolled back between tests
+我们有一个内置的_修饰器_支持这个。
 
-Database is not rolled back between RSpec examples, only between example groups.
-We don't want to reinvent the wheel and encourage you to use other tools that
-provide this out of the box.
+### 数据库在测试之间没有回滚
 
-If you're using RSpec Rails, turn on `RSpec.configuration.use_transactional_fixtures` in your `spec/rails_helper.rb`:
+数据库在 RSpec 测试用例之间不回滚，仅在测试用例组之间回滚。
+我们不想重新发明轮子，所以鼓励你使用其他自带支持该功能的工具。
+
+如果你使用 RSpec Rails，在你的 `spec/rails_helper.rb`中打开`RSpec.configuration.use_transactional_fixtures`：
 
 ```ruby
 RSpec.configure do |config|
@@ -101,17 +99,17 @@ RSpec.configure do |config|
 end
 ```
 
-Make sure to set `use_transactional_tests` (`use_transactional_fixtures` in Rails < 5.1) to `true` if you're using Minitest.
+如果你使用 Minitest，请确认设置了 `use_transactional_tests`（在 Rails < 5.1 中是`use_transactional_fixtures` ）为 `true` 。
 
-If you're using DatabaseCleaner, make sure it rolls back the database between tests.
+如果你在使用 DatabaseCleaner，请确认其是在测试之间进行回滚。
 
 ## Aliases
 
-> @since v0.9.0
+> 自 v0.9.0 起
 
-Naming is hard. Handling edge cases (the ones described above) is also tricky.
+命名是很难的。处理边界场景（上述情况）也不容易。
 
-To solve this we provide a way to define `let_it_be` aliases with the predefined options:
+为了解决这个问题，我们提供了一种方式以预定义选项来定义 `let_it_be` 的 aliases：
 
 ```ruby
 # rails_helper.rb
@@ -129,12 +127,12 @@ describe "smth" do
 end
 ```
 
-## Modifiers
+## 修饰器
 
-If you modify objects generated within a `let_it_be` block in your examples, you maybe have to re-initiate them to avoid state leakage between the examples.
-Keep in mind that even though the database is rolled back to its pristine state, models themselves are not.
+如果你修改了测试用例内的 `let_it_be` 代码块中所生成的对象，那么可能不得不重新初始化它们以避免在测试用例之间的状态泄漏。
+要小心，尽管数据库能被回滚到其崭新状态，而 models 自身不会。
 
-We have a built-in _modifiers_ support for getting models to their pristine state:
+我们有一个内置的 _修饰器_ 支持把 models 置为崭新的状态：
 
 ```ruby
 # Use reload: true option to reload user object (assuming it's an instance of ActiveRecord)
@@ -153,9 +151,9 @@ before_all { @user = create(:user) }
 let(:user) { User.find(@user.id) }
 ```
 
-**NOTE:** make sure that you require `let_it_be` after `active_record` is loaded (e.g., in `rails_helper.rb` **after** requiring the Rails app); otherwise the `refind` and `reload` modifiers are not activated.
+**注意：** 请确保你 require `let_it_be` 是在 `active_record` 被加载之后（比如，在 `rails_helper.rb` 中是在 require Rails app **之后**）；否则， `refind` 和 `reload` 修饰器不会被激活。
 
-(**@since v0.10.0**) You can also use modifiers with array values, e.g. `create_list`:
+（**自 v0.10.0 起**）你也可以把修饰器跟数组值一起使用了，比如， `create_list`：
 
 ```ruby
 let_it_be(:posts, reload: true) { create_list(:post, 3) }
@@ -165,11 +163,11 @@ before_all { @posts = create_list(:post, 3) }
 let(:posts) { @posts.map(&:reload) }
 ```
 
-### Custom Modifiers
+### 自定义修饰器
 
-> @since v0.10.0
+> 自 v0.10.0 起
 
-If `reload` and `refind` is not enough, you can add your custom modifier:
+如果 `reload` 和 `refind` 还不够，那么你可以添加自己的自定义修饰器：
 
 ```ruby
 # rails_helper.rb
@@ -189,13 +187,13 @@ TestProf::LetItBe.configure do |config|
 end
 ```
 
-### Default Modifiers
+### 默认修饰器
 
-> @since v0.12.0
+> 自 v0.12.0 起
 
-It's possible to configure the default modifiers used for all `let_it_be` calls:
+对于所有 `let_it_be` 调用，可以配置其默认修饰器：
 
-- Globally:
+- 全局：
 
 ```ruby
 TestProf::LetItBe.configure do |config|
@@ -204,7 +202,7 @@ TestProf::LetItBe.configure do |config|
 end
 ```
 
-- For specific contexts using tags:
+- 对使用 tags 的特定 contexts：
 
 ```ruby
 context "with let_it_be reload", let_it_be_modifiers: {reload: true} do
@@ -212,7 +210,7 @@ context "with let_it_be reload", let_it_be_modifiers: {reload: true} do
 end
 ```
 
-**NOTE:** Nested contexts tags are overwritten not merged:
+**注意** 嵌套 contexts tags 是被覆盖而非合并：
 
 ```ruby
 TestProf::LetItBe.configure do |config|
@@ -228,21 +226,21 @@ context "with reload", let_it_be_modifiers: {reload: true} do
 end
 ```
 
-## State Leakage Detection
+## 状态泄漏的检测
 
-> @since v0.12.0
+> 自 v0.12.0 起
 
-From [`rspec-rails` docs](https://relishapp.com/rspec/rspec-rails/v/3-9/docs/transactions) on transactions and `before(:context)`:
+[`rspec-rails` docs](https://relishapp.com/rspec/rspec-rails/v/3-9/docs/transactions) 对于事务和 `before(:context)`的描述：
 
-> Even though database updates in each example will be rolled back, the object won't know about those rollbacks so the object and its backing data can easily get out of sync.
+> 即使每个测试用例中的数据库更新都将回滚，对象也不会知道这些回滚，因此该对象与其数据很容易不同步。
 
-Since `let_it_be` initialize objects in `before(:context)` hooks under the hood, it's affected by this problem: the code might modify models shared between examples (thus causing _shared state leaks_). That could happen unwillingly: when the underlying code under test modifies models, e.g. modifies `updated_at` attribute; or deliberately: when models are updated in `before` hooks or examples themselves instead of creating models in a proper state initially.
+由于 `let_it_be` 是在其引擎下的 `before(:context)` hooks 中初始化对象，因此会受到该问题影响：代码可能会修改测试用例之间共享的 models（因此造成_共享状态的泄漏_）。这可以是非主动地：当测试之下的基础代码修改了 models 时，比如，修改了 `updated_at` 属性；或者可以是故意地：当 models 在 `before` hooks 或测试用例自身中被更新，而非在初始的适当状态中被创建的时候。
 
-This state leakage comes with potentially harmful side effects on the other examples, such as implicit dependencies and execution order dependency.
+这种状态泄漏带来了对其他测试用例的潜在有害的边际效应，比如隐式的依赖和执行顺序依赖。
 
-With many shared models between many examples, it's hard to track down the example and exact place in the code that modifies the model.
+对多个测试用例之间的多个共享 models，很难追踪这些用例和修改 model 的代码的准确位置。
 
-To detect modifications, objects that are passed to `let_it_be` are frozen (with `#freeze`), and `FrozenError` is raised:
+要检测更改，被传给 `let_it_be` 的对象被冻结（以 `#freeze`），并且 `FrozenError` 被抛出：
 
 ```ruby
 # use freeze: true modifier to enable this feature
@@ -253,13 +251,13 @@ before_all { @user = create(:user).freeze }
 let(:user) { @user }
 ```
 
-To fix the `FrozenError`:
+要修复 `FrozenError`：
 
-- Add `reload: true`/`refind: true`, it pacifies leakage detection and prevents leakage itself. Typically it's significantly faster to reload the model than to re-create it from scratch before each example (two or even three orders of magnitude faster in some cases).
-- Rewrite the problematic test code.
+- 添加 `reload: true`/`refind: true`, 它可消除泄漏检测并防止泄漏本身。通常在每个测试用例之前重新载入 model 比从头重新创建 model 要明显更快（在某些情况下要快两个甚至三个数量级）。
+- 重写造成问题的测试代码。
 
-This feature is opt-in, since it may find a significant number of leakages in specs that may be a significant burden to fix all at once.
-It's possible to gradually turn it on for parts of specs (e.g., only models) by using:
+该功能是可选的，因为它可能会发现 specs 中的大量泄漏，而一次性修复所有泄漏可能是一种重大负担。
+可以针对部分 specs 逐步打开它（比如，仅针对 models），如下：
 
 ```ruby
 # spec/spec_helper.rb
@@ -271,6 +269,6 @@ RSpec.configure do |config|
 end
 ```
 
-And then tag contexts/examples with `:let_it_be_frost` to enable this feature.
+And then tag然后给 contexts 或测试用例打上 `:let_it_be_frost` 的 tag 来启用该功能。
 
-Alternatively, you can specify `freeze` modifier explicitly (`let_it_be(freeze: true)`) or configure an alias.
+或者，你还可以明确指定 `freeze` 修饰器（`let_it_be(freeze: true)`）或者配置一个 alias。
