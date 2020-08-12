@@ -1,12 +1,12 @@
 # Any Fixture
 
-Fixtures are the great way to increase your test suite performance, but for the large project, they are very hard to maintain.
+Fixtures 是提高你测试性能的上佳方式，但对于大型项目，它们非常难于维护。
 
-We propose a more general approach to lazy-generate the _global_ state for your test suite – AnyFixture.
+我们提出了一个更通用的方案来为你的测试套件 lazy 生成 _全局_ 状态—— AnyFixture。
 
-With AnyFixture you can use any block of code for data generation, and it will take care of cleaning it out at the end of the run.
+有了 AnyFixture，对于数据生成你可以使用任何代码块，并且它会在测试运行结束时对其进行清理。
 
-Consider an example:
+考虑如下范例：
 
 ```ruby
 # The best way to use AnyFixture is through RSpec shared contexts
@@ -49,23 +49,23 @@ describe PostsController, :account do
 end
 ```
 
-See real life [example](http://bit.ly/any-fixture).
+这儿有一个现实的 [例子](http://bit.ly/any-fixture)。
 
-## Instructions
+## 教学
 
 ### RSpec
 
-In your `spec_helper.rb` (or `rails_helper.rb` if you have one):
+在 `spec_helper.rb`（或 `rails_helper.rb`，如果有的话）中：
 
 ```ruby
 require "test_prof/recipes/rspec/any_fixture"
 ```
 
-Now you can use `TestProf::AnyFixture` in your tests.
+现在你可以在测试中使用 `TestProf::AnyFixture` 了。
 
 ### Minitest
 
-When using AnyFixture with Minitest you should take care of cleaning the database after each test run by yourself. For example:
+当把 AnyFixture 与 Minitest 一起使用时，你要自己负责在每个测试运行之后清理数据库。例如：
 
 ```ruby
 # test_helper.rb
@@ -77,7 +77,7 @@ at_exit { TestProf::AnyFixture.clean }
 
 ## DSL
 
-We provide an optional _syntactic sugar_ (through Refinement) to make easier to define fixtures:
+我们提供了一个可选的 _句法糖_ （通过 Refinement）使定义 fixtures 变得更容易：
 
 ```ruby
 require "test_prof/any_fixture/dsl"
@@ -94,7 +94,7 @@ let(:account) { fixture(:account) }
 
 ## `ActiveRecord#refind`
 
-TestProf also provides an extension to _hard-reload_ ActiveRecord objects:
+TestProf 也提供了一个扩展来 _硬重载_ ActiveRecord 对象：
 
 ```ruby
 # instead of
@@ -108,11 +108,11 @@ using TestProf::Ext::ActiveRecordRefind
 let(:account) { fixture(:account).refind }
 ```
 
-## Temporary disable fixtures
+## 临时禁用 fixtures
 
-Some of your tests might rely on _clean database_. Thus running them along with AnyFixture-dependent tests could produce failures.
+你的有些测试可能依赖着 _清理数据库_，因此把它们跟依赖 AnyFixture 的测试一起运行就可能造成失败。
 
-You can disable (or delete) all created fixture while running a specified example or group using the `:with_clean_fixture` shared context:
+你可以在运行一个特定测试用例或用例组时，使用 `:with_clean_fixture` 的共享 context 以禁用（或删除）所有创建的 fixture：
 
 ```ruby
 context "global state", :with_clean_fixture do
@@ -125,13 +125,13 @@ context "global state", :with_clean_fixture do
 end
 ```
 
-How does it work? It wraps the example group into a transaction (using [`before_all`](./before_all.md)) and calls `TestProf::AnyFixture.clean` before running the examples.
+这是如何工作的？它把测试用例组包裹在一个事务内（使用 [`before_all`](./before_all.md)）并在运行测试用例之前调用 `TestProf::AnyFixture.clean`。
 
-Thus, this context is a little bit _heavy_. Try to avoid such situations and write specs independent on global state.
+因此，这个 context 有那么一点儿 _重_。尽量避免这些情况并编写独立于全局状态的 specs。
 
-## Usage report
+## 使用报告
 
-`AnyFixture` collects the usage information during the test run and could reports it at the end:
+`AnyFixture` 在测试运行期间收集了使用信息，所以可以在结束时做出报告：
 
 ```sh
 [TEST PROF INFO] AnyFixture usage stats:
@@ -146,18 +146,15 @@ Total time saved: 00:00.019
 Total time wasted: 00:00.000
 ```
 
-The reporting is off by default, to enable the reporting set `TestProf::AnyFixture.reporting_enabled = true` (or you can invoke it manually through `TestProf::AnyFixture.report_stats`).
+报告默认是关闭的，要启用可设置 `TestProf::AnyFixture.reporting_enabled = true` （或者可以通过`TestProf::AnyFixture.report_stats`手动执行它）。
 
-You can also enable reporting through `ANYFIXTURE_REPORT=1` env variable.
+你也可以通过 `ANYFIXTURE_REPORT=1` 环境变量来启用它。
 
-## Caveats
+## 警告
 
-**UPD:** Since v0.5.0 AnyFixture disable referential integrity (if possible) to prevent the following problem.
+**更新：** 自 v0.5.0 版本起，AnyFixture 禁用了引用完整性（如果可能）以防止出现以下问题。
 
-`AnyFixture` cleans tables in the reverse order as compared to the order they were populated. That
-means when you register a fixture which references a not-yet-registered table, a
-foreign-key violation error *might* occur (if any). An example is worth more than 1000
-words:
+`AnyFixture` 以跟其填充顺序相反的顺序来清理表。这意味着当你注册一个 fixture，它引用了一个尚未注册的表的时候，一个外键的违规错误就 _可能_ 发生（如果有的话）。一个例子胜过千言万语：
 
 ```ruby
 class Author < ApplicationRecord
@@ -169,7 +166,7 @@ class Article < ApplicationRecord
 end
 ```
 
-And the shared contexts:
+这是共享 contexts：
 
 ```ruby
 RSpec.shared_context "author" do
@@ -196,7 +193,7 @@ RSpec.shared_context "article" do
 end
 ```
 
-Then in some example:
+然后在某些测试用例中：
 
 ```ruby
 # This one adds only the 'articles' table to the list of affected tables
@@ -205,4 +202,4 @@ include_context "article"
 include_context "author"
 ```
 
-Now we have the following affected tables list: `['articles', 'authors']`. At the end of the suite, the 'authors' table is cleaned first which leads to a foreign-key violation error.
+现在我们有这些受影响的表：`['articles', 'authors']`。在测试套件最后，'authors' 表被首先清理，这就导致了一个外键违规错误。
