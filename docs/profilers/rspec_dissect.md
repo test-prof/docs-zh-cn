@@ -61,7 +61,7 @@ RD_PROF=1 RD_PROF_TOP=10 rspec ...
 
 你也可以通过各自指定 `RD_PROF=let` 和 `RD_PROF=before`来仅追踪`let`或`before`的使用。
 
-对于 `let` 分析器，你也可以通过 `RD_PROF_LET_TOP=10` 环境变量指定打印排位靠前的`let`声明的数量。 
+对于 `let` 分析器，你也可以通过 `RD_PROF_LET_TOP=10` 环境变量指定打印排位靠前的`let`声明的数量。
 
 要禁用 `let` 统计，添加这个设置：
 
