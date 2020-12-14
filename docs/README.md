@@ -131,9 +131,9 @@ end
 
 ## 下一步
 
-有好的想法？[提交](https://github.com/test-prof/test-prof/issues/new)一个功能需求吧!
+有好的想法？[提交](https://github.com/test-prof/test-prof/discussions)一个功能需求吧!
 
-已经在使用 TestProf 了？[分享你的故事吧](https://github.com/test-prof/test-prof/issues/73)
+已经在使用 TestProf 了？[分享你的故事吧](https://github.com/test-prof/test-prof/discussions/73)
 
 ## 许可协议
 
