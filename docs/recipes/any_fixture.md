@@ -1,6 +1,6 @@
 # Any Fixture
 
-Fixtures 是提高你测试性能的上佳方式，但对于大型项目，它们非常难于维护。
+Fixtures 是一种提高你测试性能的上佳方式，但对于大型项目，它们非常难于维护。
 
 我们提出了一个更通用的方案来为你的测试套件 lazy 生成 _全局_ 状态—— AnyFixture。
 
@@ -146,60 +146,210 @@ Total time saved: 00:00.019
 Total time wasted: 00:00.000
 ```
 
-报告默认是关闭的，要启用可设置 `TestProf::AnyFixture.reporting_enabled = true` （或者可以通过`TestProf::AnyFixture.report_stats`手动执行它）。
+报告默认是关闭的，要启用可设置 `TestProf::AnyFixture.config.reporting_enabled = true` （或者可以通过`TestProf::AnyFixture.report_stats`手动执行它）。
 
 你也可以通过 `ANYFIXTURE_REPORT=1` 环境变量来启用它。
 
-## 警告
+## 使用自动生成的 SQL 导出文件
 
-**更新：** 自 v0.5.0 版本起，AnyFixture 禁用了引用完整性（如果可能）以防止出现以下问题。
+>  @since v1.0, 实验性的
 
-`AnyFixture` 以跟其填充顺序相反的顺序来清理表。这意味着当你注册一个 fixture，它引用了一个尚未注册的表的时候，一个外键的违规错误就 _可能_ 发生（如果有的话）。一个例子胜过千言万语：
+AnyFixture 被设计为在每个测试套件运行时生成数据（并在结束时清理掉）。这依然有着时间的消耗（比如，对于系统或性能测试）；因此，我们想要进一步优化。
 
-```ruby
-class Author < ApplicationRecord
-  has_many :articles
-end
+我们提供了另一种对测试数据提速的方式，称作`#register_dump`。它的工作方式类似于针对初次运行的`#register`：接收一个代码块，并追踪其内部所生成的 SQL 查询。然后，它生成一份 SQL 导出文本，表示其调用期间创建或修改的数据，并使用这份导出对随后的测试恢复数据库状态。
 
-class Article < ApplicationRecord
-  belongs_to :author
-end
-```
-
-这是共享 contexts：
+来看一个范例：
 
 ```ruby
-RSpec.shared_context "author" do
+RSpec.shared_context "account", account: true do
+  # You should call AnyFixture outside of transaction to re-use the same
+  # data between examples
   before(:all) do
-    @author = TestProf::AnyFixture.register(:author) do
-      FactoryGirl.create(:account)
+    # The block is called once per test run (similary to #register)
+    TestProf::AnyFixture.register_dump("account") do
+      # Do anything here, AnyFixture keeps track of affected DB tables
+      # For example, you can use factories here
+      account = FactoryGirl.create(:account, name: "test")
+
+      # or with Fabrication
+      account = Fabricate(:account, name: "test")
+
+      # or with plain old AR
+      account = Account.create!(name: "test")
+
+      # updates are also tracked
+      account.update!(tag: "sql-dump")
     end
   end
 
-  let(:author) { @author }
-end
-
-RSpec.shared_context "article" do
-  before(:all) do
-    # outside of AnyFixture, we don't know about its dependent tables
-    author = FactoryGirl.create(:author)
-
-    @article = TestProf::AnyFixture.register(:article) do
-      FactoryGirl.create(:article, author: author)
-    end
-  end
-
-  let(:article) { @article }
+ # Here, we MUST use a custom way to retrieve a record: since we restore the data
+ # from a plain SQL dump, we have no knowledge of Ruby objects
+  let(:account) { Account.find_by!(name: "test") }
 end
 ```
 
-然后在某些测试用例中：
+而下面是运行测试时所发生的：
+
+```bash
+# first run
+$ bundle exec rspec
+
+# AnyFixture.register_dump is called:
+# - is SQL dump present? No
+# - run block and write all modifying queries to a new SQL dump
+# AnyFixture.clean is called:
+# - clean all the affected tables
+
+# second run
+$ bundle exec rspec
+
+# AnyFixture.register_dump is called:
+# - is SQL dump present? Yes
+# - restore dump (do not run block)
+# AnyFixture.clean is called:
+# - clean all the affected tables
+```
+
+### 所需环境
+
+目前，仅支持 PostgreSQL 12+ 和 SQLite3。
+
+### 导出文件失效
+
+所生成的导出文件会因多种原因而过期：数据库 schema 变更，fixture 代码块升级，等等。要处理这些无效情况，我们使用文件内容的 digests 作为缓存 keys（导出文件名为后缀）。
+
+默认情况下，AnyFixture 会监控`db/schema.rb`，`db/structure.sql`和名为`\#register_dump`的文件。
+
+默认监控文件列表可以通过修改`default_dump_watch_paths`配置参数来变更：
 
 ```ruby
-# This one adds only the 'articles' table to the list of affected tables
-include_context "article"
-# And this one adds the 'authors' table
-include_context "author"
+TestProf::AnyFixture.configure do |config|
+  # you can use exact file paths or globs
+  config.default_dump_watch_paths << Rails.root.join("spec/factories/**/*")
+end
 ```
 
-现在我们有这些受影响的表：`['articles', 'authors']`。在测试套件最后，'authors' 表被首先清理，这就导致了一个外键违规错误。
+另外，你也可以通过`watch`选项把监控文件添加到一个特别的`#register_dump`调用上：
+
+```ruby
+TestProf::AnyFixture.register_dump("account", watch: ["app/models/account.rb", "app/models/account/**/*,rb"]) do
+  # ...
+end
+```
+
+**注意**：当你使用`watch`选项时，当前文件并未被添加到监控列表里。你要使用`__FILE__`来明确指定它。
+
+最后，如果你想要强制重新生成导出文件，可以使用`ANYFIXTURE_FORCE_DUMP`环境变量：
+
+- `ANYFIXTURE_FORCE_DUMP=1`会强制全部导出文件都重新生成。
+- `ANYFIXTURE_FORCE_DUMP=account`会强制重新生成仅匹配的导出文件（比如，匹配`/account/`的）。
+
+#### 缓存 keys
+
+可以提供自定义的缓存 keys，被用作 digest 的一部分：
+
+```ruby
+# cache_key could be pretty much anything that responds to #to_s
+TestProf::AnyFixture.register_dump("account", cache_key: ["str", 1, {key: :val}]) do
+  # ...
+end
+```
+
+### Hooks
+
+#### `before` / `after`
+
+Before hooks 要么在调用一个 fixture 代码块 之前被调用，要么在恢复一个导出文件之前被调用。一种特别的使用场景是在多租户应用中重新创建一个租户：
+
+```ruby
+TestProf::AnyFixture.register_dump(
+  "account",
+  before: proc do
+    begin
+      Apartment::Tenant.create("test")
+    rescue
+      nil
+    end
+    Apartment::Tenant.create("test")
+  end
+) do
+  # ...
+end
+```
+
+类似地，after hooks 也是要么在调用一个 fixture 代码块 之前被调用，要么在恢复一个导出文件之前被调用。
+
+你也能指定全局的 before 和 after hooks：
+
+```ruby
+TestProf::AnyFixture.configure do |config|
+  config.before_dump do |dump:, import:|
+    # dump is an object containing information about the dump (e.g., dump.digest)
+    # import is true if we're restoring a dump and false otherwise
+    # do something
+  end
+
+  config.after_dump do |dump:, import:|
+    # ...
+  end
+end
+```
+
+**注意**：after 回调总是会执行，哪怕导出文件的创建失败了也会。你可以使用`dump.success?`方法来检测数据生成是否成功。
+
+#### `skip_if`
+
+该回调仅作为`#register_dump`的选项时可用，可被用来完全忽略 fixture。这在当你想要在测试运行之间保护数据库状态（比如，不清理数据库）的时候很有用。
+
+下面是一个完整示例：
+
+```ruby
+TestProf::AnyFixture.register_dump(
+  "account",
+  # do not track tables for AnyFixture.clean (though other fixtures could affect this)
+  clean: false,
+  skip_if: proc do |dump:|
+    Apartment::Tenant.switch!("test")
+    # if the current account has matching meta — the database is in actual state
+    Account.find_by!(name: "test").meta["dump-version"] == dump.digest
+  end,
+  before: proc do
+    begin
+      Apartment::Tenant.create("test")
+    rescue
+      nil
+    end
+    Apartment::Tenant.create("test")
+  end,
+  after: proc do |dump:, import:|
+    # do not persist dump version if dump failed or we're restoring data
+    next if import || !dump.success?
+
+    Account.find_by!(name: "test").then do |account|
+      account.meta["dump-version"] = dump.digest
+      account.save!
+    end
+  end
+) do
+  # ...
+end
+```
+
+### 配置
+
+下面是一些可用的配置项：
+
+```ruby
+TestProf::AnyFixture.configure do |config|
+  # Where to store dumps (by default, TestProf.artifact_path + '/any_dumps')
+  config.dumps_dir = "any_dumps"
+  # Include mathing queries into a dump (in addition to INSERT/UPDATE/DELETE queries)
+  config.dump_matching_queries = /^$/
+  # Whether to try using CLI tools such as psql or sqlite3 to restore dumps or not (and use ActiveRecord instead)
+  config.import_dump_via_cli = false
+end
+```
+
+**注意**：当使用 CLI 工具来恢复导出文件时，无法追踪影响到的数据表，并因此无法通过`AnyFixture.clean`来清理它们。
+
+

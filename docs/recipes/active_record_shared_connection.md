@@ -1,5 +1,7 @@
 # Active Record 共享连接
 
+\> 💀  该功能在 v1.0 中已被移除。
+
 **注意：** 自 Rails 5.1 起 (查看 [PR](https://github.com/rails/rails/pull/28083))已经添加了一个类似的功能。你不应该在现代 Rails 上使用 `ActiveRecordSharedConnection` ，它可能导致意料之外的行为（比如，互斥锁的死锁）。
 
 Active Record 默认是每个线程创建一个连接。
