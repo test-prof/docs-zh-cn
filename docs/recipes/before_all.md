@@ -71,9 +71,7 @@ require "test_prof/recipes/rspec/before_all"
 （Rails < 5.1中是`use_transactional_fixtures` ），RSpec Rails 的`use_transactional_fixtures`，
 DatabaseCleaner，或者在每个测试用例前开始事务并在结束后回滚的自定义代码。
 
-### Minitest（实验性的）
-
-\*_实验性的_ 意味着我还没有在生产环境中用过。
+### Minitest
 
 可以与 Minitest 一起使用 `before_all` ：
 
@@ -93,6 +91,8 @@ class MyBeatlesTest < Minitest::Test
   # define tests which could access the object defined within `before_all`
 end
 ```
+
+除了`before_all`，TestProf 也提供了一个`after_all`回调，它在由`before_all`所打开的数据库事务关闭之前被调用，比如，在测试类的最后一个用例完成之后。
 
 ## 数据库适配器
 
@@ -213,3 +213,27 @@ TestProf 自带对 Isolator 的识别并使其忽略 `before_all` 的事务。
 # after loading before_all or/and let_it_be
 require "test_prof/before_all/isolator"
 ```
+
+## 使用 Rails fixtures (_实验性的_)
+
+如果你想要在`before_all` hook 内使用 fixture，必须通过`setup_fixture:`选项来明确加入：
+
+```ruby
+before_all(setup_fixtures: true) do
+  @user = users(:john)
+  @post = create(:post, user: user)
+end
+```
+
+Minitest 和 RSpec 都可用。
+
+你也可以全局启用 fixtures（比如，对所有`before_all` hooks）:
+
+```ruby
+TestProf::BeforeAll.configure do |config|
+  config.setup_fixtures = true
+end
+```
+
+
+

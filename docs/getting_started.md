@@ -6,7 +6,7 @@
 
 ```ruby
 group :test do
-  gem "test-prof"
+  gem "test-prof", "1.0.0.rc1"
 end
 ```
 
