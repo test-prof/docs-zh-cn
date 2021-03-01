@@ -31,7 +31,7 @@ TestProf 工具箱旨在帮你识别测试套件的瓶颈。它包含：
 📑 [Documentation](https://test-prof.evilmartians.io)
 
 <p align="center">
-  <a href="http://bit.ly/test-prof-map">
+  <a href="http://bit.ly/test-prof-map-v1">
     <img src="./assets/images/coggle.png" alt="TestProf map" width="738">
   </a>
 </p>
