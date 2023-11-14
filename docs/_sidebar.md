@@ -1,6 +1,7 @@
 <!-- markdownlint-disable -->
 
 * [入门](/getting_started.md)
+* [Playbook](/playbook.md)
 
 * 分析器
   * [RubyProf 的整合](/profilers/ruby_prof.md)
