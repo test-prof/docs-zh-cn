@@ -4,10 +4,10 @@ pre-commit:
       tags: style
       glob: "**/*.md"
       run: mdl {staged_files}
-    liche:
+    lychee:
       tags: links
       glob: "docs/*.md"
-      run: liche -c 2 -r docs/* -d docs/ -x "(assets)/" && test {staged_files}
+      run: lychee docs/*.md --exclude "(assets)/" && test {staged_files}
     forspell:
       tags: grammar
       glob: "**/*.md"
@@ -15,4 +15,4 @@ pre-commit:
     rubocop:
       tags: style
       glob: "**/*.md"
-      run: BUNDLE_GEMFILE=gemfiles/rubocop.gemfile bundle exec rubocop {staged_files}
+      run: BUNDLE_GEMFILE=gemfiles/rubocop.gemfile bundle exec rubocop -c .rubocop-md.yml {staged_files}
