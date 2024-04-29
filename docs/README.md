@@ -6,7 +6,7 @@
 > Ruby 测试的分析和优化工具箱。
 
 <img align="right" height="150" width="129"
-     title="TestProf logo" class="home-logo" src="./assets/images/logo.svg">
+     title="TestProf logo" class="home-logo" src="/assets/images/logo.svg">
 
 TestProf 是一个分析你的测试套件性能的不同工具集。
 
@@ -32,7 +32,7 @@ TestProf 工具箱旨在帮你识别测试套件的瓶颈。它包含：
 
 <p align="center">
   <a href="http://bit.ly/test-prof-map-v1">
-    <img src="./assets/images/coggle.png" alt="TestProf map" width="738">
+    <img src="/assets/images/coggle.png" alt="TestProf map" width="738">
   </a>
 </p>
 
