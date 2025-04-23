@@ -10,19 +10,19 @@
 
 TestProf 是一个分析你的测试套件性能的不同工具集。
 
-为什么测试套件性能如此重要？ 首先，测试是开发者反馈环的一部分（参看 [@searls](https://github.com/searls) [talk](https://vimeo.com/145917204)）。其次，它是开发周期的一部分。
+为什么测试套件性能如此重要？ 首先，测试是开发者反馈环的一部分（参看 [@searls](https://github.com/searls) [talk](https://vimeo.com/145917204)）。其次，它是部署周期的一部分。
 
 简单来说，慢测试浪费你的时间，让你效率低下。
 
 TestProf 工具箱旨在帮你识别测试套件的瓶颈。它包含：
 
-- 为常规 Ruby 分析器（[`ruby-prof`](https://github.com/ruby-prof/ruby-prof), [`stackprof`](https://github.com/tmm1/stackprof)）提供了即插即用的整合。
+- 常规 Ruby 分析器（[`ruby-prof`](https://github.com/ruby-prof/ruby-prof), [`stackprof`](https://github.com/tmm1/stackprof)）即插即用的整合。
 
 - 对 Factories 的使用采用了分析器。
 
 - ActiveSupport 所支持的分析器。
 
-- 提供了 RSpec 和 minitest 的 [帮助方法](#recipes) 以编写更快的测试。
+- RSpec 和 minitest 的 [帮助方法](#recipes) 以编写更快的测试。
 
 - RuboCop 的支持。
 
@@ -42,20 +42,28 @@ TestProf 工具箱旨在帮你识别测试套件的瓶颈。它包含：
          alt="Sponsored by Evil Martians" width="236" height="54">
   </a>
 </p>
-## 使用 TestProf 的用户
+## TestProf 的用户
 
 - [Discourse](https://github.com/discourse/discourse) 减少了 [他们测试套件约 27% 的耗时](https://twitter.com/samsaffron/status/1125602558024699904)
 - [Gitlab](https://gitlab.com/gitlab-org/gitlab-ce) 减少了 [他们 API 测试 39% 的耗时](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/14370)
-- [CodeTriage](https://github.com/codetriage/codetriage)
+- [Mastodon](https://github.com/mastodon/mastodon)
 - [Dev.to](https://github.com/thepracticaldev/dev.to)
+- [CodeTriage](https://github.com/codetriage/codetriage)
 - [Open Project](https://github.com/opf/openproject)
-- [其他更多……](https://github.com/test-prof/test-prof/issues/73)
+- [其他……](https://github.com/test-prof/test-prof/issues/73)
 
-## 资源列表
+## 资源
 
+- [From slow to go: Rails test profiling hands-on](https://evilmartians.com/events/from-slow-to-go-rails-test-profiling-hands-on-railsconf-2024)
+
+- [Profiling Ruby tests with Swiss precision](https://evilmartians.com/events/profiling-ruby-tests-with-swiss-precision-helvetic-ruby)
 - [TestProf: Ruby慢测试的“良医圣手”](https://xfyuan.github.io/2020/07/testprof-doctor-for-slow-ruby-tests/)
 
 - [TestProf II: Ruby测试的“工厂疗法”](https://xfyuan.github.io/2020/07/testprof-factory-therapy-for-ruby-tests/)
+
+- [TestProf III：引导式及自动化的Ruby测试分析](https://xfyuan.github.io/2024/01/testprof-3-guided-and-automated-ruby-test-profiling/)
+
+- [一万年太久，只争朝夕](https://xfyuan.github.io/2025/04/railing-against-time-tools-and-techniques-that-got-us-5x-faster-result/)
 
 - Paris.rb, 2018, “慢测试的99个问题” 演讲 [[视频](https://www.youtube.com/watch?v=eDMZS_fkRtk), [slides](https://speakerdeck.com/palkan/paris-dot-rb-2018-99-problems-of-slow-tests)]
 
@@ -85,7 +93,18 @@ end
 
 - JRuby >= 9.1.0.0 （**注意** refinements-dependent 特性可能需要 9.2.7+）
 
-所支持的 RSpec 版本（仅 RSpec 特性）: >= 3.5.0（对于旧版本 RSpec 请使用 TestProf < 0.8.0）。
+所支持的 RSpec 版本（仅 RSpec 特性）: >= 3.5.0（对较旧版本 RSpec 请使用 TestProf < 0.8.0）。
+
+所支持的 Rails 版本（仅适用于 Rails 功能）：>= 5.2.0（对较旧版本 Rails 请使用 TestProf < 1.0）。
+
+## 使用 RuboCop RSpec 进行 Lint
+
+当使用 `rubocop-rspec` 对 RSpec spec 文件进行 lint 检查时，它将无法正确检测 TestProf 定义的 `let_it_be` 和 `before_all` 这些 RSpec constructs。确保使用 `rubocop-rspec` 2.0 或更新版本，并将以下内容添加到 `.rubocop.yml` 中：
+
+```yaml
+inherit_gem:
+  test-prof: config/rubocop-rspec.yml
+```
 
 ## 分析器
 
@@ -137,5 +156,5 @@ end
 
 ## 许可协议
 
-根据 [MIT License](http://opensource.org/licenses/MIT) 条款，本 gem 可作为开源使用。
+根据 [MIT License](http://opensource.org/licenses/MIT) 条款，本 gem 可开源使用。
 

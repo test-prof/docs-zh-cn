@@ -1,8 +1,8 @@
 # Any Fixture
 
-Fixtures 是一种提高你测试性能的上佳方式，但对于大型项目，它们非常难于维护。
+Fixtures 是一种提高你测试性能的上佳方式，但对于大型项目，它们非常难以维护。
 
-我们提出了一个更通用的方案来为你的测试套件 lazy 生成 _全局_ 状态—— AnyFixture。
+我们提出了一个更通用的方案来为你的测试套件 lazy 生成 _全局_ 状态 —— AnyFixture。
 
 有了 AnyFixture，对于数据生成你可以使用任何代码块，并且它会在测试运行结束时对其进行清理。
 
@@ -49,13 +49,13 @@ describe PostsController, :account do
 end
 ```
 
-这儿有一个现实的 [例子](http://bit.ly/any-fixture)。
+这有一个现实的 [例子](http://bit.ly/any-fixture)。
 
 ## 教学
 
 ### RSpec
 
-在 `spec_helper.rb`（或 `rails_helper.rb`，如果有的话）中：
+在 `spec_helper.rb`（或 `rails_helper.rb`，如果有的话）中加入：
 
 ```ruby
 require "test_prof/recipes/rspec/any_fixture"
@@ -77,7 +77,7 @@ at_exit { TestProf::AnyFixture.clean }
 
 ## DSL
 
-我们提供了一个可选的 _句法糖_ （通过 Refinement）使定义 fixtures 变得更容易：
+我们提供了一个可选的 _句法糖_ （通过 Refinement）以更轻松地定义 fixtures 和使用回调：
 
 ```ruby
 require "test_prof/any_fixture/dsl"
@@ -90,27 +90,25 @@ before(:all) { fixture(:account) }
 
 # You can also use it to fetch the record (instead of storing it in instance variable)
 let(:account) { fixture(:account) }
+
+# You can just use `before_fixtures_reset` or `after_fixtures_reset` callbacks
+before_fixtures_reset { Post.delete_all }
+after_fixtures_reset { Post.delete_all }
 ```
 
-## `ActiveRecord#refind`
-
-TestProf 也提供了一个扩展来 _硬重载_ ActiveRecord 对象：
+请注意，`#fixture` 方法也会在读取时*重新查找* Active Record 对象，即类似以下两个表达式的工作方式：
 
 ```ruby
-# instead of
-let(:account) { Account.find(fixture(:account).id) }
+let(:account) { fixture(:account) }
 
-# load refinement
-require "test_prof/ext/active_record_refind"
+# similar to
 
-using TestProf::Ext::ActiveRecordRefind
-
-let(:account) { fixture(:account).refind }
+let(:account) { Account.find(TestProf::AnyFixture.cached(:account).id) }
 ```
 
 ## 临时禁用 fixtures
 
-你的有些测试可能依赖着 _清理数据库_，因此把它们跟依赖 AnyFixture 的测试一起运行就可能造成失败。
+你的有些测试可能依赖 _干净的数据库_，因此把它们跟依赖 AnyFixture 的测试一起运行就可能造成失败。
 
 你可以在运行一个特定测试用例或用例组时，使用 `:with_clean_fixture` 的共享 context 以禁用（或删除）所有创建的 fixture：
 
@@ -127,7 +125,14 @@ end
 
 这是如何工作的？它把测试用例组包裹在一个事务内（使用 [`before_all`](./before_all.md)）并在运行测试用例之前调用 `TestProf::AnyFixture.clean`。
 
-因此，这个 context 有那么一点儿 _重_。尽量避免这些情况并编写独立于全局状态的 specs。
+它是如何工作的？它将示例组包装到一个事务中（使用 [`before_all`](http://localhost:8754/before_all.md)），并在运行示例之前调用 `TestProf::AnyFixture.clean` 和 `TestProf::AnyFixture.disable!`，然后在 context 退出时调用 `TestProf::AnyFixture.enable!`。` disable!`/` enable!` 方法切换缓存状态。这使得可以重用注册期间传递的 blocks，就像没有 AnyFixture 一样：
+
+```ruby
+# Here we create a new account if AnyFixture is disabled
+let(:account) { fixture(:account) { create(:account) } }
+```
+
+重置 Fixture （比如从受影响的 table 中删除数据） 可能很*重*。尽量避免这种情况，并编写独立于全局状态的测试。
 
 ## 使用报告
 
@@ -146,17 +151,17 @@ Total time saved: 00:00.019
 Total time wasted: 00:00.000
 ```
 
-报告默认是关闭的，要启用可设置 `TestProf::AnyFixture.config.reporting_enabled = true` （或者可以通过`TestProf::AnyFixture.report_stats`手动执行它）。
+报告默认是关闭的，要启用可设置 `TestProf::AnyFixture.config.reporting_enabled = true` （或者可以通过`TestProf::AnyFixture.report_stats` 手动执行它）。
 
 你也可以通过 `ANYFIXTURE_REPORT=1` 环境变量来启用它。
 
-## 使用自动生成的 SQL 导出文件
+## 使用自动生成的 SQL dumps
 
 >  @since v1.0, 实验性的
 
-AnyFixture 被设计为在每个测试套件运行时生成数据（并在结束时清理掉）。这依然有着时间的消耗（比如，对于系统或性能测试）；因此，我们想要进一步优化。
+AnyFixture 被设计为在每个测试套件运行时生成一次数据（并在结束时清理掉）。这依然可能很耗时（比如，对于系统或性能测试）；因此，我们想要进一步优化。
 
-我们提供了另一种对测试数据提速的方式，称作`#register_dump`。它的工作方式类似于针对初次运行的`#register`：接收一个代码块，并追踪其内部所生成的 SQL 查询。然后，它生成一份 SQL 导出文本，表示其调用期间创建或修改的数据，并使用这份导出对随后的测试恢复数据库状态。
+我们提供了另一种对测试数据提速的方式，称作`#register_dump`。它的工作方式类似于针对初次运行的 `#register` 接收一个代码块，并追踪其内部所进行的 SQL 查询。然后，它生成一份 SQL dump，表示其调用期间创建或修改的数据，并使用这份 dump 对随后的测试恢复数据库状态。
 
 来看一个范例：
 
@@ -210,15 +215,15 @@ $ bundle exec rspec
 # - clean all the affected tables
 ```
 
-### 所需环境
+### 所需要求
 
 目前，仅支持 PostgreSQL 12+ 和 SQLite3。
 
-### 导出文件失效
+### Dump 失效
 
-所生成的导出文件会因多种原因而过期：数据库 schema 变更，fixture 代码块升级，等等。要处理这些无效情况，我们使用文件内容的 digests 作为缓存 keys（导出文件名为后缀）。
+所生成的 dump 会因多种原因而过期：数据库 schema 变更，fixture 代码块更新，等等。要处理这些失效情况，我们使用文件内容的 digests 作为缓存 keys（dump 文件名为后缀）。
 
-默认情况下，AnyFixture 会监控`db/schema.rb`，`db/structure.sql`和名为`\#register_dump`的文件。
+默认情况下，AnyFixture 会监控`db/schema.rb`，`db/structure.sql`和调用`#register_dump`方法的文件。
 
 默认监控文件列表可以通过修改`default_dump_watch_paths`配置参数来变更：
 
@@ -229,7 +234,7 @@ TestProf::AnyFixture.configure do |config|
 end
 ```
 
-另外，你也可以通过`watch`选项把监控文件添加到一个特别的`#register_dump`调用上：
+另外，你也可以通过`watch`选项把监控文件添加到特定的`#register_dump`调用上：
 
 ```ruby
 TestProf::AnyFixture.register_dump("account", watch: ["app/models/account.rb", "app/models/account/**/*,rb"]) do
@@ -237,12 +242,12 @@ TestProf::AnyFixture.register_dump("account", watch: ["app/models/account.rb", "
 end
 ```
 
-**注意**：当你使用`watch`选项时，当前文件并未被添加到监控列表里。你要使用`__FILE__`来明确指定它。
+**注意**：当你使用`watch`选项时，当前文件不会添加到监控列表里。你要使用`__FILE__`来明确指定它。
 
-最后，如果你想要强制重新生成导出文件，可以使用`ANYFIXTURE_FORCE_DUMP`环境变量：
+最后，如果你想要强制重新生成 dump，可以使用`ANYFIXTURE_FORCE_DUMP`环境变量：
 
-- `ANYFIXTURE_FORCE_DUMP=1`会强制全部导出文件都重新生成。
-- `ANYFIXTURE_FORCE_DUMP=account`会强制重新生成仅匹配的导出文件（比如，匹配`/account/`的）。
+- `ANYFIXTURE_FORCE_DUMP=1` 会强制全部 dumps 都重新生成。
+- `ANYFIXTURE_FORCE_DUMP=account` 会强制重新生成仅匹配的 dump（比如，匹配`/account/`的）。
 
 #### 缓存 keys
 
@@ -259,7 +264,7 @@ end
 
 #### `before` / `after`
 
-Before hooks 要么在调用一个 fixture 代码块 之前被调用，要么在恢复一个导出文件之前被调用。一种特别的使用场景是在多租户应用中重新创建一个租户：
+Before hooks 在调用 fixture 代码块之前或者恢复 dump 之前被调用。一种特别的使用场景是在多租户应用中重新创建租户：
 
 ```ruby
 TestProf::AnyFixture.register_dump(
@@ -277,7 +282,7 @@ TestProf::AnyFixture.register_dump(
 end
 ```
 
-类似地，after hooks 也是要么在调用一个 fixture 代码块 之前被调用，要么在恢复一个导出文件之前被调用。
+类似地，after hooks 是在调用 fixture 代码块之后或者恢复 dump 之前被调用。
 
 你也能指定全局的 before 和 after hooks：
 
@@ -295,7 +300,7 @@ TestProf::AnyFixture.configure do |config|
 end
 ```
 
-**注意**：after 回调总是会执行，哪怕导出文件的创建失败了也会。你可以使用`dump.success?`方法来检测数据生成是否成功。
+**注意**：after 回调总是会执行，哪怕 dump 的创建失败。你可以使用`dump.success?`方法来检测数据生成是否成功。
 
 #### `skip_if`
 
@@ -351,5 +356,4 @@ end
 ```
 
 **注意**：当使用 CLI 工具来恢复导出文件时，无法追踪影响到的数据表，并因此无法通过`AnyFixture.clean`来清理它们。
-
 

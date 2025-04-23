@@ -1,6 +1,6 @@
 # FactoryAllStub
 
-_Factory All Stub_ 是一个强制 FactoryBot/FactoryGirl 仅使用 `build_stubbed` 策略的说法（即使你调用了 `create` 或 `build`）。
+_Factory All Stub_ 是一个强制 FactoryBot/FactoryGirl 仅使用 `build_stubbed` 策略的叫法（即使你调用了 `create` 或 `build`）。
 
 背后的思想是快速修复 [Factory Doctor](../profilers/factory_doctor.md) 的问题（并甚至自动执行该操作）。
 

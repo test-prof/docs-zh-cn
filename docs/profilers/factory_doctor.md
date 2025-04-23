@@ -1,6 +1,6 @@
 # Factory 医生
 
-一个通常的拖慢我们测试的坏模式是不必要的数据库操作。考虑 _下面_ 的例子：
+拖慢我们测试的一种常见坏模式是不必要的数据库操作。考虑一个_不好_的例子：
 
 ```ruby
 # with FactoryBot/FactoryGirl
@@ -18,7 +18,7 @@ it "validates name presence" do
 end
 ```
 
-这里我们创建了一条新的 user 记录，运行所有的回调和校验，并把它保存到数据库。而我们完全不需要这样！下面是一个_好的_ 范例：
+这里我们创建了一条新的 user 记录，运行所有的回调和校验，并把它保存到数据库。而我们完全不需要这样！下面是一个_好的_ 示例：
 
 ```ruby
 # with FactoryBot/FactoryGirl
@@ -40,7 +40,7 @@ end
 
 FactoryDoctor 是一个帮你识别这些_坏_测试的工具，比如，测试执行了不必要的数据库查询。
 
-输出范例：
+输出示例：
 
 ```sh
 [TEST PROF INFO] FactoryDoctor report
@@ -53,11 +53,11 @@ User (./spec/models/user_spec.rb:3) (3 records created, 00:00.628)
   validates email (./spec/user_spec.rb:8) – 2 records created, 00:00.514
 ```
 
-**注意**：注意到“potentially” 的字样？不好意思，FactoryDoctor 并非魔术师（其仍在学习中），有时它也会发生“误诊”的事情。
+**注意**：注意到“potentially” 的字样？抱歉，FactoryDoctor 并非魔术师（它仍在学习中），有时它也会发生“误诊”的事情。
 
-如果你发现了造成 FactoryDoctor 失败的场景，请提交 [issue](https://github.com/test-prof/test-prof/issues)。
+如果你发现了造成 FactoryDoctor 失败的案例，请提交 [issue](https://github.com/test-prof/test-prof/issues)。
 
-你也可以告诉 FactoryDoctor 忽略特定的测试用例/组。只要添加 `:fd_ignore` tag 即可：
+你还可以告诉 FactoryDoctor 忽略特定的测试用例/组。只要添加 `:fd_ignore` tag 即可：
 
 ```ruby
 # won't be reported as offense
@@ -73,7 +73,7 @@ end
 FactoryDoctor 支持：
 
 - FactoryGirl/FactoryBot
-- Fabrication (**自 v0.9.0 起**).
+- Fabrication
 
 ### RSpec
 
@@ -91,7 +91,7 @@ FactoryDoctor 可与 [RSpec Stamp](../recipes/rspec_stamp.md) 一起使用，以
 FDOC=1 FDOC_STAMP="fdoc:consider" rspec ...
 ```
 
-运行上面命令之后，所有_潜在的_ 坏测试用例会都以`fdoc: :consider` tag 标记出来。
+运行上面命令之后，所有_潜在的坏测试用例会都以`fdoc: :consider` tag 标记出来。
 
 ### Minitest
 
@@ -107,9 +107,7 @@ FDOC=1 ruby ...
 ruby ... --factory-doctor
 ```
 
-强制 Factory Doctor 忽略特定测试用例的相同选项对于 Minitest 也是可用的。
-
-只要在你的测试用例内使用 `fd_ignore`：
+强制 Factory Doctor 忽略特定测试用例的相同选项对于 Minitest 也是可用的。只要在你的测试用例内使用 `fd_ignore`：
 
 ```ruby
 # won't be reported as offense
@@ -123,7 +121,7 @@ end
 
 ### 与 Minitest::Reporters 一起使用
 
-如果在你的项目中正在使用 `Minitest::Reporters`，则必须在测试帮助方法文件中明确声明它：
+如果在你的项目中正在使用 `Minitest::Reporters`，则必须在测试帮助方法文件中显式声明它：
 
 ```sh
 require 'minitest/reporters'
@@ -131,13 +129,10 @@ Minitest::Reporters.use! [YOUR_FAVORITE_REPORTERS]
 ```
 
 **注意**: 当你以 gem 安装了 `minitest-reporters` 但并未在你的 `Gemfile` 里声明时，
-确保总是在测试运行命令之前使用 `bundle exec` （但我们相信你总会这样做的）。
-否则，你会得到由 Minitest plugin 系统造成的报错, 该系统对所有的 `minitest/*_plugin.rb` 扫描
-`$LOAD_PATH` 内的入口, 因此该场景中可用的 `minitest-reporters` plugin 的初始化就不正确了。
+确保总是在测试运行命令之前使用 `bundle exec` （但我们相信你始终这样做）。
+否则，你会得到由 Minitest plugin 系统造成的报错, 它会扫描 `$LOAD_PATH` 用于任何 `minitest/*_plugin.rb`，因此该场景中可用的 `minitest-reporters` plugin 的初始化不会正确发生。
 
 ## 配置
-
-> 自 v0.9.0 起
 
 如下配置参数是可用的（展示的为默认情况）：
 

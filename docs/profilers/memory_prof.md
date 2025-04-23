@@ -1,6 +1,6 @@
 # 内存分析器
 
-MemoryProf 在测试套件运行期间跟踪内存使用情况，并可以帮助检测导致内存峰值的测试用例和测试组。内存分析支持两个指标：RSS 和分配。
+MemoryProf 在测试套件运行期间跟踪内存使用情况，并可以帮助检测导致内存峰值的测试用例和组。内存分析支持两个指标：RSS 和 allocations。
 
 输出范例：
 
@@ -24,11 +24,11 @@ change Votes count (./spec/shared_examples/controllers/voted_examples.rb:23) –
 fails (./spec/shared_examples/controllers/invalid_examples.rb:3) – +32KB (5.00%)
 ```
 
-该 examples 块显示每个示例使用的内存量，groups 块显示组中定义的其他代码分配的内存。例如，RSpec 组可能包含繁重的 `before(:all)` （或 `before_all` ）设置块，因此查看哪些组在其示例之外使用最多的内存量会很有帮助。
+examples 块显示每个示例使用的内存量，groups 块显示组中定义的其他代码分配的内存。例如，RSpec 组可能包含繁重的 `before(:all)` （或 `before_all` ）设置块，因此查看哪些组在其示例之外使用最多的内存量会很有帮助。
 
 ## 指示
 
-使用以下命令激活 MemoryProf：
+使用以下方式激活 MemoryProf：
 
 ### RSpec
 
@@ -75,7 +75,7 @@ ruby test/my_super_test.rb --mem-prof=rs --mem-prof-top-count=10
 
 ## 支持的 Ruby 引擎和操作系统
 
-目前 JRuby 不支持分配模式。
+目前 JRuby 不支持 allocation 模式。
 
 由于 RSS 依赖于操作系统，因此 MemoryProf 使用不同的工具来检索它：
 

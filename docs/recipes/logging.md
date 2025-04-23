@@ -35,7 +35,7 @@ LOG=ar rspec ...
 
 **注意：** 仅支持 RSpec。
 
-通过添加特别 tag—— `:log`来激活日志记录：
+通过添加特别 tag —— `:log`来激活日志记录：
 
 ```ruby
 # Add the tag and you will see a lot of interesting stuff in your console
