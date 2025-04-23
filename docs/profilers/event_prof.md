@@ -2,9 +2,9 @@
 
 EventProf 在你的测试套件运行期间收集各种测量指标（比如  ActiveSupport::Notifications）。
 
-它的工作很类似于 `rspec --profile` 但可追踪任意事件。
+它的工作非常类似于 `rspec --profile`，但可以追踪任意事件。
 
-输出范例：
+输出示例：
 
 ```sh
 [TEST PROF INFO] EventProf results for sql.active_record
@@ -32,7 +32,7 @@ fails (./spec/shared_examples/controllers/invalid_examples.rb:3) – 00:00.007 (
 
 目前，EventProf 仅支持 ActiveSupport::Notifications。
 
-激活 EventProf：
+要激活 EventProf 可通过以下方式：
 
 ### RSpec
 
@@ -58,7 +58,7 @@ EVENT_PROF='sql.active_record,perform.active_job' rspec ...
 EVENT_PROF='sql.active_record' rake test
 ```
 
-或者也可以使用 CLI 选项：
+或者使用 CLI 选项：
 
 ```sh
 # Run a specific file using CLI option
@@ -70,7 +70,7 @@ ruby test/my_super_test.rb --help
 
 ### 与 Minitest::Reporters 一起使用
 
-如果在你的项目中使用了 `Minitest::Reporters`，那么你必须明确在测试帮助方法文件中声明它：
+如果在你的项目中使用了 `Minitest::Reporters`，那么必须显式在测试帮助方法文件中声明它：
 
 ```sh
 require 'minitest/reporters'
@@ -80,9 +80,8 @@ Minitest::Reporters.use! [YOUR_FAVORITE_REPORTERS]
 #### 注意
 
 当你以 gem 安装了 `minitest-reporters` 但并未在你的 `Gemfile` 里声明时，
-确保总是在测试运行命令之前使用 `bundle exec` （但我们相信你总会这样做的）。
-否则，你会得到由 Minitest plugin 系统造成的报错, 该系统对所有的 `minitest/*_plugin.rb` 扫描
-`$LOAD_PATH` 内的入口, 因此该场景中可用的 `minitest-reporters` plugin 的初始化就不正确了。
+确保总是在测试运行命令之前使用 `bundle exec` （但我们相信你始终这样做）。
+否则，你会得到由 Minitest plugin 系统引起的报错, 它会扫描 `$LOAD_PATH` 用于任何 `minitest/*_plugin.rb`，因此该场景中可用的 `minitest-reporters` plugin 的初始化不会正确发生。
 
 如果你在用 Rails，参看 [Rails guides](http://guides.rubyonrails.org/active_support_instrumentation.html)来了解所有可用的事件。
 
@@ -90,8 +89,8 @@ Minitest::Reporters.use! [YOUR_FAVORITE_REPORTERS]
 
 ## 配置
 
-默认情况下，EventProf 仅收集关于 top-level 组的信息（aka suites），
-但你也可以分析单独的用例。只用设置好配置选项：
+默认情况下，EventProf 仅收集关于 top-level 组（也称为套件）的信息，
+但你也可以分析单独的用例。只要设置好配置选项：
 
 ```ruby
 TestProf::EventProf.configure do |config|
@@ -101,7 +100,7 @@ end
 
 或者提供 `EVENT_PROF_EXAMPLES=1` 环境变量。
 
-另一个有用但配置参数是——`rank_by`。它负责对统计数字排序——或者是事件耗费时间或者是出现次数：
+另一个有用但配置参数是——`rank_by`。它负责对统计数字排序——按事件耗费时间或者出现次数：
 
 ```sh
 EVENT_PROF_RANK=count EVENT_PROF='instantiation.active_record' be rspec
@@ -121,9 +120,9 @@ EVENT_PROF="sql.active_record" EVENT_PROF_STAMP="slow:sql" rspec ...
 
 ## 自定义测量器
 
-要让 EventProf 和你的测量器引擎一起使用，只用完成下面两步：
+要让 EventProf 和你的测量器引擎一起使用，只需完成下面两步：
 
-- 为你的测量器添加一个封装器：
+- 为你的测量器添加封装器：
 
 ```ruby
 # Wrapper over your instrumentation
@@ -151,31 +150,31 @@ end
 
 ### `"factory.create"`
 
-FactoryGirl 提供了两个它自己的测量器（`factory_girl.run_factory`），但有一个警告——每次一个 factory 被使用时就会触发一个事件，即使我们是为嵌套关联关系使用 factory。因此由于重复计算这就不可能计算 factories 所耗费的时间了。
+FactoryGirl 提供了自己的测量器（`factory_girl.run_factory`），但有一个警告——每次 factory 被使用时就会触发一个事件，即使我们是为嵌套关联关系使用 factory。
 
-EventProf 为 FactoryGirl 带来了一个小的补丁，其仅为 top-level 的 `FactoryGirl.create` 调用提供测量器。如果你使用 `"factory.create"` 事件，它会自动加载：
+因此，由于重复计算，就不可能计算 factories 所耗费的总时间了。
+
+EventProf 为 FactoryGirl 带来了一个小的补丁，它仅为 top-level 的 `FactoryGirl.create` 调用提供测量器。如果你使用 `"factory.create"` 事件，它会自动加载：
 
 ```sh
 EVENT_PROF=factory.create bundle exec rspec
 ```
 
-> 自 v0.9.0 起
-
-也支持 Fabrication（追踪隐式和显式的 `Fabricate.create` 调用）。
+还支持 Fabrication（追踪隐式和显式的 `Fabricate.create` 调用）。
 
 ### `"sidekiq.jobs"`
 
-收集关于 inline 运行的 Sidekiq jobs 的统计数字：
+收集关于 inline 运行的 Sidekiq jobs 的统计信息：
 
 ```sh
 EVENT_PROF=sidekiq.jobs bundle exec rspec
 ```
 
-**注意**： 会自动把 `rank_by` 设为 `count`（因为收集耗费时间的信息没有意义——参看下边）。
+**注意**： 会自动把 `rank_by` 设为 `count`（因为收集耗费时间的信息没有意义——参看下文）。
 
 ### `"sidekiq.inline"`
 
-收集关于 inline 运行的 Sidekiq jobs 的统计数字（除去嵌套 jobs）：
+收集关于 inline 运行的 Sidekiq jobs（不包括嵌套 jobs）的统计信息：
 
 ```sh
 EVENT_PROF=sidekiq.inline bundle exec rspec
@@ -197,7 +196,7 @@ class Work
 end
 ```
 
-你可以通过添加一个 _monitor_ 来分析：
+你可以通过添加 _monitor_ 来分析它：
 
 ```ruby
 # provide a class, event name and methods to monitor
@@ -210,12 +209,10 @@ TestProf::EventProf.monitor(Work, "my.work", :do_smth)
 EVENT_PROF=my.work bundle exec rake test
 ```
 
-> 自 v0.9.0 起
-
-你也可以提供额外的选项：
+你还可以提供其他选项：
 
 - `top_level: true | false` （默认为`false`）：定义是否只考虑 top-level 调用并忽略此事件的嵌套触发器（这正是 "factory.create" 如何[实现的](https://github.com/test-prof/test-prof/blob/master/lib/test_prof/event_prof/custom_events/factory_create.rb)）。
-- `guard: Proc` （默认为 `nil`）： 提供一个 Proc，防止触发一个事件：仅当 `guard` 返回 `true`时方法才被测量； `guard` 使用 `instance_exec`执行，并将方法参数传递给它。
+- `guard: Proc` （默认为 `nil`）： 提供一个 Proc，防止触发事件：仅当 `guard` 返回 `true`时方法才被测量； `guard` 使用 `instance_exec`执行，并将方法参数传递给它。
 
 例如：
 

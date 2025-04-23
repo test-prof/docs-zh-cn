@@ -1,10 +1,10 @@
 # RSpecDissect 分析器
 
-你知道在`before` hooks 上花费了多少时间吗？或者在诸如 `let` 之类的帮助方法上？通常，它们是整个测试套件中耗费最多的时间。
+你知道在`before` hooks 上花费了多少时间吗？或者在诸如 `let` 之类的帮助方法上？通常，它们是整个测试套件中耗费时间最多的。
 
-_RSpecDissect_ 提供了这种信息，也会向你展示最坏的测试用例组。RSpecDissect 的主要目标是识别出那些慢点用例组，并使用 [`before_all`](../recipes/before_all.md) 或 [`let_it_be`](../recipes/let_it_be.md) 的配方来重构它们。
+_RSpecDissect_ 提供了此类信息，还会向你展示最差的测试用例组。RSpecDissect 的主要目标是识别出那些慢的用例组，并使用 [`before_all`](../recipes/before_all.md) 或 [`let_it_be`](../recipes/let_it_be.md) 的配方来重构它们。
 
-输出范例：
+输出示例：
 
 ```sh
 [TEST PROF INFO] RSpecDissect enabled
@@ -41,7 +41,7 @@ AvailableSlotsController (./spec/controllers/available_slots_controller_spec.rb:
  ↳ stage – 10
 ```
 
-如你所见， `let` 分析器也追踪、提供了组内（默认是排在前三位的）每个`let`声明被使用了多少次的信息。
+如你所见， `let` 分析器也追踪、提供了组内每个`let`声明被使用了多少次的信息（默认显示排在前三的）。
 
 ## 教学
 
@@ -59,7 +59,7 @@ RD_PROF=1 rspec ...
 RD_PROF=1 RD_PROF_TOP=10 rspec ...
 ```
 
-你也可以通过各自指定 `RD_PROF=let` 和 `RD_PROF=before`来仅追踪`let`或`before`的使用。
+你还可以通过各自指定 `RD_PROF=let` 和 `RD_PROF=before`来仅追踪`let`或`before`的使用。
 
 对于 `let` 分析器，你也可以通过 `RD_PROF_LET_TOP=10` 环境变量指定打印排位靠前的`let`声明的数量。
 

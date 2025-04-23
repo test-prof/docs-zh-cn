@@ -6,15 +6,15 @@
 
 ```ruby
 group :test do
-  gem "test-prof", "1.0.0.rc1"
+  gem "test-prof", "~> 1.0"
 end
 ```
 
-完成！现在就可以使用 TestProf 的 [profilers](/#profilers) 了。
+完成！现在就可以使用 TestProf 的[分析器](/#profilers)了。
 
 ## 配置
 
-大多数 profilers 使用的 TestProf 通用配置：
+TestProf 的全局配置被大多数分析器使用：
 
 ```ruby
 TestProf.configure do |config|
@@ -26,12 +26,16 @@ TestProf.configure do |config|
 
   # color output
   config.color = true
+
+  # where to write logs (defaults)
+  config.output = $stdout
+
+  # alternatively, you can specify a custom logger instance
+  config.logger = MyLogger.new
 end
 ```
 
-你也可以通过`TEST_PROF_REPORT`环境变量动态添加 artifacts/reports 后缀。
-
-如果你没使用时间戳并想要用不同设置生成多个报告且比较它们时，就很有用。
+你也可以通过`TEST_PROF_REPORT`环境变量动态添加 artifacts/reports 后缀。如果你没使用时间戳并想要用不同设置生成多个报告且比较它们时，这将很有用。
 
 例如，让我们使用[`stackprof`](./profilers/stack_prof.md)来比较下测试用和不用`bootsnap`的加载时间:
 
@@ -45,4 +49,4 @@ $ TEST_STACK_PROF=boot TEST_PROF_REPORT=no-bootsnap bundle exec rake
 $ #=> StackProf report generated: tmp/test_prof/stack-prof-report-wall-raw-boot-no-bootsnap.dump
 ```
 
-现在你就有了两个带清晰名称的 stackprof 报告！
+现在你就有了两个带清晰命名的 stackprof 报告！

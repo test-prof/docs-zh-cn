@@ -1,10 +1,8 @@
 # FactoryDefault
 
-_Factory Default_ 旨在通过重用关联关系数据记录帮你对付 _factory cascades_（参看 [FactoryProf](../profilers/factory_prof.md)）。
+_FactoryDefault_ 旨在通过重用关联关系数据帮你对付 _factory cascades_（参看 [FactoryProf](../profilers/factory_prof.md)）。
 
-**注意**，仅可用于 FactoryGirl/FactoryBot。
-
-当你在处理典型的 SaaS 应用（或其他分等级的数据）时，它会很有用。
+当你在处理典型的 SaaS 应用（或其他分层数据）时，它会很有用。
 
 考虑一个例子。假设你有如下的 factories：
 
@@ -28,7 +26,20 @@ factory :task do
 end
 ```
 
-而我们想要测试 `Task` model：
+或者在 Fabrication 的情况下：
+
+```
+Fabricator(:account) do
+end
+
+Fabricator(:user) do
+  account
+end
+
+# etc.
+```
+
+我们想要测试 `Task` model：
 
 ```ruby
 describe "PATCH #update" do
@@ -43,7 +54,7 @@ describe "PATCH #update" do
 end
 ```
 
-每个测试用例会创建多少个 users 和 accounts？ 分别是两个和四个。
+每个测试用例会创建多少个 users 和 accounts？ 分别是 2 和 4。
 
 而且它破坏了我们的逻辑（每个对象应该属于同一个 account）。
 
@@ -62,7 +73,7 @@ describe "PATCH #update" do
 end
 ```
 
-这是能工作。然而有一些缺点：有点太啰嗦了，且有错误的倾向（容易忘记某些东西）。
+这是能工作，但有些缺点：有点太啰嗦了，且易于出错（很容易忘记某些东西）。
 
 下面是我们如何使用 FactoryDefault 来处理它：
 
@@ -84,7 +95,7 @@ describe "PATCH #update" do
 end
 ```
 
-**注意**，该特性引入了一些_魔法_到你的测试中，请谨慎使用。（因为测试应该首先要易于人们阅读）。好的做法是仅用于 top-level（比如多租户中 App 中的租户）。
+**注意**，该特性引入了一些_魔法_到你的测试中，请谨慎使用。（因为测试应该首先要易于人们阅读）。好仅用于 top-level（比如多租户中 App 中的租户）。
 
 ## 教学
 
@@ -94,9 +105,9 @@ end
 require "test_prof/recipes/rspec/factory_default"
 ```
 
-这为 FactoryBot 添加了两个新方法：
+这会将以下方法添加到 FactoryBot 和/或 Fabrication：
 
-- `FactoryBot#set_factory_default(factory, object)`——对于 `factory` 构建的关联关系，使用 `object` 作为默认值。
+- `FactoryBot#set_factory_default(factory, object)` / `Fabricate.set_fabricate_default(factory, object)`——对于 `factory` 构建的关联关系，使用 `object` 作为默认值。
 
 范例：
 
@@ -104,17 +115,42 @@ require "test_prof/recipes/rspec/factory_default"
 let(:user) { create(:user) }
 
 before { FactoryBot.set_factory_default(:user, user) }
+
+# You can also set the default factory with traits
+FactoryBot.set_factory_default([:user, :admin], admin)
+
+# Or (since v1.4)
+FactoryBot.set_factory_default(:user, :admin, admin)
+
+# You can also register a default record for specific attribute overrides
+Fabricate.set_fabricate_default(:post, post, state: "draft")
 ```
 
-- `FactoryBot#create_default(factory, *args)` —— `create` + `set_factory_default`的快捷方式。
+- `FactoryBot#create_default(...)` / `Fabricate.create_default(...)` – 是`create` + `set_factory_default` 的快捷方式。
+- `FactoryBot#get_factory_default(factory)` / `Fabricate.get_fabricate_default(factory)` —— 获取 `factory` 的默认值（自 v1.4 起）。
 
-**注意**，Defaults 默认是**在每个测试用例后被清除掉**。这意味着你在 `before(:all)` / [`before_all`](./before_all.md) / [`let_it_be`](./let_it_be.md) 定义的内部不能创建默认值。这在未来可能会改变，目前 [请查看这个变通办法](https://github.com/test-prof/test-prof/issues/125#issuecomment-471706752)。
+```
+# This method also supports traits
+admin = FactoryBot.get_factory_default(:user, :admin)
+```
 
-### 与 traits 一起使用
+**重要提醒：** 默认情况下， **在每个测试用例后都会清理**（即使用 `test_prof/recipes/rspec/factory_default` 时）。
 
-当你在关联关系中有类似这样的 traits 时：
+### 与 `before_all` / `let_it_be` 使用
+
+在 `before_all` 和 `let_it_be` 中创建的默认值不会在每个测试用例后重置，而只会在相应用例组后重置。因此，可以在 `let_it_be` 中调用 `create_default`，而无需任何其他配置。 **仅限 RSpec**。
+**重要提醒：** 你必须在加载 BeforeAll 后加载 FactoryDefault 才能使此功能正常工作。
+**注意**， 不支持常规的 `before(:all)` 回调。
+
+### 与 traits 使用
+
+你可以在关联中使用 traits，例如：
 
 ```ruby
+factory :comment do
+  user
+end
+
 factory :post do
   association :user, factory: %i[user able_to_post]
 end
@@ -124,7 +160,119 @@ factory :view do
 end
 ```
 
-并为 `user` factory 设置了默认值——那么你会发现同样的对象被用于上面所有 factories 中。有时候这会破坏你的逻辑。
+如果 `user` factory 有默认值，则它将独立于 trait 使用。这可能会破坏你的逻辑。
 
-要防止这个——请设置 `FactoryDefault.preserve_traits = true` 或者使用 per-factory 来覆盖
-`create_default(:user, preserve_traits: true)`。 这会针对有明确定义的 traits 的关联关系恢复到初始的  FactoryBot 行为。
+为防止这种情况，请配置 FactoryDefault 以保留 traits：
+
+```ruby
+# Globally
+TestProf::FactoryDefault.configure do |config|
+  config.preserve_traits = true
+end
+
+# or in-place
+create_default(:user, preserve_traits: true)
+```
+
+使用 trait 创建默认值的工作原理如下：
+
+```ruby
+# Create a default with trait
+user = create_default(:user_poster, :able_to_post)
+
+# When an association has no traits specified, the default with trait is used
+create(:comment).user == user #=> true
+# When an association has the matching trait specified, the default is used, too
+create(:post).user == user #=> true
+# When the association's trait differs, default is skipped
+create(:view).user == user #=> false
+```
+
+### 处理属性 overrides
+
+可以为关联定义属性 overrides：
+
+```ruby
+factory :post do
+  association :user, name: "Poster"
+end
+
+factory :view do
+  association :user, name: "Viewer"
+end
+```
+
+FactoryDefault 忽略此类 overrides，并且仍然返回默认`user`记录（如果已创建）。你可以打开属性感知功能，以便在 overrides 与默认对象属性不匹配时跳过默认记录：
+
+```ruby
+# Globally
+TestProf::FactoryDefault.configure do |config|
+  config.preserve_attributes = true
+end
+
+# or in-place
+create_default :user, preserve_attributes: true
+```
+
+**注意：** 在未来版本的 Test Prof 中，`preserve_traits` 和 `preserve_attributes` 都将默认为 true。如果你刚开始使用此功能，我们建议将它们设置为 true。
+
+### 忽略 default factories
+
+可以通过使用 `skip_factory_default` 方法包装代码来临时禁用 defaults 用法：
+
+```ruby
+account = create_default(:account)
+another_account = skip_factory_default { create(:account) }
+
+expect(another_account).not_to eq(account)
+```
+
+### 显示使用统计
+
+可以通过设置 `FACTORY_DEFAULT_SUMMARY=1` 或 `FACTORY_DEFAULT_STATS=1` 环境变量或通过设置配置值来显示 FactoryDefault 使用统计：
+
+```ruby
+TestProf::FactoryDefault.configure do |config|
+  config.report_summary = true
+  # Report stats prints the detailed usage information (including summary)
+  config.report_stats = true
+end
+```
+
+例如：
+
+```
+$ FACTORY_DEFAULT_SUMMARY=1 bundle exec rspec
+
+FactoryDefault summary: hit=11 miss=3
+```
+
+其中 `hit` 表示在创建关联时使用 default factory 值而非新值的次数；`miss` 指示由于 traits 或属性不匹配而忽略 default 值的次数。
+
+## Factory Default 分析，或何时使用 defaults
+
+Factory Default 随分析器一起提供，它可以帮助查看关联在测试套件中的使用情况，以便你决定是否使用 `create_default`。
+
+要启用性能分析，请使用 `FACTORY_DEFAULT_PROF=1` 运行测试：
+
+```
+$ FACTORY_DEFAULT_PROF=1 bundle exec rspec spec/some/file_spec.rb
+
+.....
+
+[TEST PROF INFO] Factory associations usage:
+
+               factory      count    total time
+
+                  user         17     00:42.010
+         user[traited]         15     00:31.560
+  user{tag:"some tag"}          1     00:00.205
+
+Total associations created: 33
+Total uniq associations created: 3
+Total time spent: 01:13.775
+```
+
+由于 default factories 通常是按测试用例组（或测试类）注册的，因此我们建议针对特定文件运行此分析器，以便你可以快速识别添加 `create_default` 的可能性并提高测试速度。
+
+**注意：** 你还可以使用分析器来测量添加 `create_default` 的效果；为此，比较在启用和禁用 FactoryDefault 的情况下运行分析器的结果（你可以通过传递 `FACTORY_DEFAULT_DISABLED=1` 环境变量来实现）。

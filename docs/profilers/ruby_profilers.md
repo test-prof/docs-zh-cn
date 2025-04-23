@@ -76,10 +76,6 @@ $ TEST_STACK_PROF=boot bundle exec rspec ./spec/some_spec.rb
 
 你还可以通过 `TEST_STACK_PROF_INTERVAL` 环境变量更改 StackProf 间隔时间。对于 `wall` 和 `cpu` 模式，`TEST_STACK_PROF_INTERVAL` 表示微秒，默认每个 `stackprof` 为 1000 。对于 `object` 模式，`TEST_STACK_PROF_INTERVAL` 表示分配，默认每个 `stackprof` 为 1。
 
-You can disable garbage collection frames by setting `TEST_STACK_PROF_IGNORE_GC` env variable.
-Garbage collection time will still be present in the profile but not explicitly marked with
-its own frame.
-
 你可以通过设置 `TEST_STACK_PROF_IGNORE_GC` 环境变量来禁用垃圾回收。垃圾回收时间仍将存在于配置文件中，但不会使用它自己的帧来显式标记。
 
 请参阅 [stack_prof.rb](https://github.com/test-prof/test-prof/tree/master/lib/test_prof/stack_prof.rb) 了解所有可用的配置选项及其用法。
@@ -118,9 +114,7 @@ TEST_VERNIER=1 bundle exec rspec ...
 [TEST PROF INFO] Vernier report generated: tmp/test_prof/vernier-report-wall-raw-total.json
 ```
 
-Use the [profile-viewer](https://github.com/tenderlove/profiler/tree/ruby) gem or upload your profiles to [profiler.firefox.com](https://profiler.firefox.com).
-
-使用 [profile-viewer](https://github.com/tenderlove/profiler/tree/ruby) gem 或将你的配置文件上传到 [profiler.firefox.com](https://profiler.firefox.com/)。
+使用 [profile-viewer](https://github.com/tenderlove/profiler/tree/ruby) gem 或将你的配置文件上传到 [vernier.prof](https://vernier.prof/)。或者，你也可以使用 [profiler.firefox.com](https://profiler.firefox.com/)，profile-viewer 是它的 fork。
 
 ### 使用 Vernier 分析单个示例
 
@@ -141,6 +135,25 @@ end
 ```sh
 # pick some random spec (1 is enough)
 TEST_VERNIER=boot bundle exec rspec ./spec/some_spec.rb
+```
+
+### 从 Active Support Notifications 添加标记
+
+可以通过从 Active Support Notifications 添加事件标记来向生成的报告添加更多见解：
+
+```
+TEST_VERNIER=1 TEST_VERNIER_HOOKS=rails bundle exec rake test
+
+# or for RSpec
+TEST_VERNIER=1 TEST_VERNIER_HOOKS=rails bundle exec rspec ...
+```
+
+或者你可以通过 `Vernier` 配置设置 hooks 参数：
+
+```
+TestProf::Vernier.configure do |config|
+  config.hooks = :rails
+end
 ```
 
 ## RubyProf
@@ -175,6 +188,22 @@ TEST_RUBY_PROF=1 bundle exec rspec ...
 [TEST PROF INFO] RubyProf report generated: tmp/test_prof/ruby-prof-report-flat-wall-total.txt
 ```
 
+#### 跳过测试套件引导
+
+**注意：** 仅限 RSpec。
+
+从 RubyProf 报告中排除应用程序启动和测试负载以仅分析正在执行的测试可能很有用（这样就不会让 `Kernel#require` 成为最慢的方法之一）。
+
+为此，请指定 `TEST_RUBY_PROF_BOOT=false`（或 “0”，或 “f”）env 变量：
+
+```
+$ TEST_RUBY_PROF=1 TEST_RUBY_PROF_BOOT=0 bundle exec rspec ...
+
+[TEST PROF] RubyProf enabled for examples
+
+...
+```
+
 ### 使用 RubyProf 分析单个示例
 
 TestProf 为 RSpec 提供了一个内置的 shared context，用于单独分析示例：
@@ -188,8 +217,6 @@ end
 注意：当全局（每个套件）分析被激活时，每个示例的分析不起作用。
 
 ### RubyProf 配置
-
-The most useful configuration option is `printer` – it allows you to specify a RubyProf [printer](https://github.com/ruby-prof/ruby-prof#printers).
 
 最有用的配置选项是 `printer` – 它允许你指定 RubyProf [printer](https://github.com/ruby-prof/ruby-prof#printers)。
 

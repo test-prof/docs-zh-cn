@@ -4,11 +4,13 @@
 
 注意：本文档假设你使用的是 Ruby on Rails 和 RSpec 测试框架。这些思想可以很容易地转化为其他框架。
 
+> 📼 另请查看 [“From slow to go” RailsConf 2024 workshop 录像 ](https://evilmartians.com/events/from-slow-to-go-rails-test-profiling-hands-on-railsconf-2024)，了解此手册的实际效果。
+
 ## 步骤 0：基础配置
 
 一些显而易见的基础：
 
-- 在测试中禁用日志记录 —— 它是无用的。如果你确实需要它，请使用我们的[日志记录工具](https://github.com/test-prof/test-prof/blob/master/docs/recipes/logging.md)。
+- 在测试中禁用日志记录 —— 这没用。如果你确实需要它，请使用我们的[日志记录工具](https://github.com/test-prof/test-prof/blob/master/docs/recipes/logging.md)。
 
 ```ruby
 config.logger = ActiveSupport::TaggedLogging.new(Logger.new(nil))
@@ -17,15 +19,19 @@ config.log_level = :fatal
 
 - 默认情况下禁用覆盖率和内置分析。使用 env var 来启用它（例如， `COVERAGE=true` ）
 
+\* 现代 SSD 硬盘驱动器使基于文件的日志记录的开销几乎可以忽略不计。尽管如此，我们仍建议禁用日志记录，以确保测试在任何环境（例如 MacOS 上的 Docker）中都不会受到影响。
+
 ## 步骤 1：通用分析
 
 它有助于识别不那么容易实现的结果。我们建议使用 [StackProf](https://github.com/test-prof/test-prof/blob/master/docs/profilers/stack_prof.md)，因此你必须先安装它（如果没有的话）：
 
 ```sh
 bundle add stackprof
+# or
+bundle add vernier
 ```
 
-默认情况下，将 Test Prof 配置为生成 JSON 配置文件：
+默认情况下，将 TestProf 配置为生成 JSON 配置文件：
 
 ```ruby
 TestProf::StackProf.configure do |config|
@@ -46,7 +52,7 @@ TEST_STACK_PROF=boot rspec ./spec/some_spec.rb
 看到什么了？下面是些例子：
 
 - 未使用或未配置 [Bootsnap](https://github.com/Shopify/bootsnap) 来缓存所有内容（例如 YAML 文件）
-- 测试中不需要的拖慢 Rails 的初始化项。
+- 测试中不需要的拖慢 Rails 的初始化项。Vernier 的 Rails hook 功能在分析 Rails 初始化项时特别有用。
 
 ### 步骤 1.2.抽样测试分析
 
@@ -68,7 +74,7 @@ SAMPLE=100 bin/rails test
 SAMPLE=100 bin/rspec
 ```
 
-通常会发现到的：
+通常会发现的：
 
 - 加密调用（ `*crypt*` -任何东西）：放宽其在测试环境中的设置
 - 日志调用：你确定禁用了日志吗？
@@ -87,9 +93,7 @@ TAG_PROF=type TAG_PROF_FORMAT=html TAG_PROF_EVENT=sql.active_record,factory.crea
 
 查看生成的图表，你可以确定两种最耗时的测试类型（通常是 model 和/或 controller）。
 
-We assume that it's easier to find a common slowness cause for the whole group and fix it than dealing with individual tests. Given that assumption, we continue the process only within the selected group (let's say, models).
-
-我们假设为整个团队找到一个常见的缓慢原因并修复它，这比处理单个测试更容易。鉴于该假设，我们仅在选定的组（例如 model）中继续该过程。
+我们假设为整个测试组找到一个常见的缓慢原因并修复它比处理单个测试更容易。鉴于该假设，我们仅在选定的组（例如 model）中继续该过程。
 
 ## 步骤 3：专门的分析
 
@@ -141,7 +145,7 @@ EVENT_PROF=sql.active_record bin/rspec spec/models
 EVENT_PROF=factory.create bin/rspec spec/models
 ```
 
-现在，我们可以将范围进一步缩小到生成的报告中的前 10 个文件。如果你使用 factories，请使用 `factory.create` 报表。
+现在，我们可以将范围进一步缩小到生成的报告中的前 10 个文件。如果你使用 factories，请使用 `factory.create` 报告。
 
 提示：在 RSpec 中，你可以运行以下命令自动使用自定义 tag 来标记最慢的示例：
 
@@ -169,7 +173,7 @@ FPROF=flamegraph bin/rspec --tag slow:factory
 
 ### 步骤 4.1：Factory 默认设置
 
-修复因模型关联而生成的 cascades 的一个选项是使用 [Factory 默认设置](https://github.com/test-prof/test-prof/blob/master/docs/recipes/factory_default.md)。若要估计潜在影响并确定要应用此模式的 factories，请运行以下分析器：
+修复因模型关联而生成的 cascades 的一个选项是使用 [Factory 默认值](https://github.com/test-prof/test-prof/blob/master/docs/recipes/factory_default.md)。若要估计潜在影响并确定要应用此模式的 factories，请运行以下分析器：
 
 ```sh
 FACTORY_DEFAULT_PROF=1 bin/rspec --tag slow:factory
@@ -186,7 +190,7 @@ FactoryDefault summary: hit=11 miss=3
 
 ### 步骤 4.2：Factory fixtures
 
-回到 `FPROF=1` 结果报表，查看是否为每个示例创建了一些记录（通常为 `user` 、 `account` `team` ）。考虑使用 [AnyFixture](https://github.com/test-prof/test-prof/blob/master/docs/recipes/any_fixture.md) 将它们替换为 fixtures。
+回到 `FPROF=1` 结果报告    ，查看是否为每个示例创建了一些记录（通常为 `user` 、 `account`、`team` ）。考虑使用 [AnyFixture](https://github.com/test-prof/test-prof/blob/master/docs/recipes/any_fixture.md) 将它们替换为 fixtures。
 
 ## 步骤 5：可重用的设置
 
