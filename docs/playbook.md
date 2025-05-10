@@ -150,7 +150,7 @@ EVENT_PROF=factory.create bin/rspec spec/models
 提示：在 RSpec 中，你可以运行以下命令自动使用自定义 tag 来标记最慢的示例：
 
 ```sh
-EVENT_PROF=factory.create EVEN_PROF_STAMP=slow:factory bin/rspec spec/models
+EVENT_PROF=factory.create EVENT_PROF_STAMP=slow:factory bin/rspec spec/models
 ```
 
 ## 步骤 4：Factories 的使用
